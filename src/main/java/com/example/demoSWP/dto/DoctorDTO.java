@@ -2,13 +2,9 @@ package com.example.demoSWP.dto;
 
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.enums.Role;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DoctorDTO {

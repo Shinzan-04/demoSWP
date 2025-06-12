@@ -109,6 +109,9 @@ public class AuthenticationService implements UserDetailsService {
         AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
         String token = tokenService.generateToken(account);
         accountResponse.setToken(token);
+        if (account.getRole() == Role.DOCTOR && account.getDoctor() != null) {
+            accountResponse.setDoctor(account.getDoctor());
+        }
         return accountResponse;
     }
 
