@@ -15,9 +15,6 @@ public class Reminder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "arv_regimen_id")

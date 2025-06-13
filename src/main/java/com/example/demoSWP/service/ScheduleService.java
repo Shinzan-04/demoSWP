@@ -21,6 +21,8 @@ public class ScheduleService {
     @Autowired
     private DoctorRepository doctorRepository;
 
+
+
     public List<ScheduleDTO> getAllSchedules() {
         return scheduleRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }

@@ -6,13 +6,11 @@ import com.example.demoSWP.dto.LoginRequest;
 import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.entity.Customer;
 import com.example.demoSWP.entity.Doctor;
-import com.example.demoSWP.entity.Staff;
 import com.example.demoSWP.enums.Role;
 import com.example.demoSWP.exception.exceptions.AuthenticationException;
 import com.example.demoSWP.repository.AuthenticationRepository;
 import com.example.demoSWP.repository.CustomerRepository;
 import com.example.demoSWP.repository.DoctorRepository;
-import com.example.demoSWP.repository.StaffRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,9 +35,6 @@ public class AuthenticationService implements UserDetailsService {
 
     @Autowired
     CustomerRepository customerRepository;
-
-    @Autowired
-    StaffRepository staffRepository;
 
     @Autowired
     AuthenticationRepository authenticationRepository;
@@ -77,13 +72,6 @@ public class AuthenticationService implements UserDetailsService {
                 customer.setFullName(newAccount.getFullName()); // Sử dụng getFullName()
                 customer.setPhone(newAccount.getPhone());
                 customerRepository.save(customer);
-            } else if (newAccount.getRole() == Role.STAFF) { // Xử lý role STAFF
-                Staff staff = new Staff();
-                staff.setAccount(newAccount);
-                staff.setEmail(newAccount.getEmail());
-                staff.setFullName(newAccount.getFullName()); // Sử dụng getFullName()
-                staff.setPhone(newAccount.getPhone());
-                staffRepository.save(staff);
             }
         }
         EmailDetail emailDetail = new EmailDetail();

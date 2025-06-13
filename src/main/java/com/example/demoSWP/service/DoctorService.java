@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorService {
@@ -110,7 +111,12 @@ public class DoctorService {
 
         return "/uploads/" + filename;
     }
-
+    public List<DoctorDTO> getAllDoctorsWithAvatar() {
+        return doctorRepository.findAll().stream()
+                .filter(doctor -> doctor.getAvatarUrl() != null && !doctor.getAvatarUrl().isEmpty()) // chỉ lấy bác sĩ có avatar
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 
 
 }
