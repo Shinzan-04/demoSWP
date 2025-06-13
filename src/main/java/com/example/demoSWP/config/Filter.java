@@ -43,10 +43,11 @@ public class Filter extends OncePerRequestFilter {
             "/swagger-resources/**",
             "/webjars/**",
             // Thêm các API khác mà bạn đã định nghĩa là public trong SecurityConfig (nếu có)
-            "/api/doctors/**",
+
             "/api/blogs/**",
             "/api/service/**",
-            "/api/posts/**"
+            "/api/posts/**",
+            "/uploads/**"
     );
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 

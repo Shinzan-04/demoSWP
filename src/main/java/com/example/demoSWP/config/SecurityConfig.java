@@ -59,9 +59,13 @@ public class SecurityConfig {
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
-                                        "/api/doctors").permitAll() // Cho phép các endpoint này công khai
+                                        "/api/doctors"
+
+                                        ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
                                 // Các yêu cầu OPTIONS là preflight request của CORS và cần được cho phép trước khi xác thực.
+                             //   .requestMatchers("/api/doctors/**").authenticated() // ✅ yêu cầu token cho /api/doctors/{id}, PUT, etc.
+                                .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
                 )

@@ -1,6 +1,6 @@
 package com.example.demoSWP.api;
 
-import com.example.demoSWP.dto.ScheduleDTO;
+import com.example.demoSWP.entity.Schedule;
 import com.example.demoSWP.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,28 +16,34 @@ public class ScheduleAPI {
     private ScheduleService scheduleService;
 
     @GetMapping
-    public List<ScheduleDTO> getAll() {
-        return scheduleService.getAllSchedules();
+    public List<Schedule> getAll() {
+        return scheduleService.getAll();
     }
 
     @GetMapping("/{id}")
-    public ScheduleDTO getById(@PathVariable Long id) {
-        return scheduleService.getScheduleById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch với id " + id));
+    public Schedule getById(@PathVariable Long id) {
+        return scheduleService.getById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch với ID: " + id));
     }
 
     @PostMapping
-    public ScheduleDTO create(@RequestBody ScheduleDTO dto) {
-        return scheduleService.createSchedule(dto);
+    public Schedule create(@RequestBody Schedule schedule) {
+        return scheduleService.create(schedule);
     }
 
     @PutMapping("/{id}")
-    public ScheduleDTO update(@PathVariable Long id, @RequestBody ScheduleDTO dto) {
-        return scheduleService.updateSchedule(id, dto);
+    public Schedule update(@PathVariable Long id, @RequestBody Schedule schedule) {
+        return scheduleService.update(id, schedule);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        scheduleService.deleteSchedule(id);
+        scheduleService.delete(id);
     }
+    @GetMapping("/doctor/{doctorId}")
+    public List<Schedule> getSchedulesByDoctor(@PathVariable Long doctorId) {
+        return scheduleService.getByDoctorId(doctorId);
+    }
+
+
 }
