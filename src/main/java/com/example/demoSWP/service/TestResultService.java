@@ -41,9 +41,21 @@ public class TestResultService {
     }
 
     public TestResultDTO create(TestResultDTO dto) {
-        TestResult entity = toEntity(dto);
-        return toDTO(testResultRepository.save(entity));
+        System.out.println("📥 DTO nhận được: " + dto);
+
+        try {
+            TestResult entity = toEntity(dto);
+            TestResult saved = testResultRepository.save(entity);
+            System.out.println("✅ Đã lưu TestResult ID: " + saved.getTestResultId());
+            return toDTO(saved);
+        } catch (Exception ex) {
+            System.out.println("❌ Lỗi khi lưu TestResult: " + ex.getMessage());
+            ex.printStackTrace();
+            throw ex; // để hiển thị lỗi rõ nếu cần
+        }
     }
+
+
 
     public TestResultDTO update(Long id, TestResultDTO dto) {
         return testResultRepository.findById(id)
@@ -70,15 +82,27 @@ public class TestResultService {
         TestResultDTO dto = modelMapper.map(entity, TestResultDTO.class);
         dto.setCustomerId(entity.getCustomer().getCustomerID());
         dto.setDoctorId(entity.getDoctor().getDoctorId());
+        dto.setCustomerName(entity.getCustomer().getFullName());
+        dto.setCustomerEmail(entity.getCustomer().getEmail());
         return dto;
     }
 
     private TestResult toEntity(TestResultDTO dto) {
-        TestResult entity = modelMapper.map(dto, TestResult.class);
+        TestResult entity = new TestResult(); // KHÔNG map toàn bộ DTO
+        entity.setDate(dto.getDate());
+        entity.setTypeOfTest(dto.getTypeOfTest());
+        entity.setResultDescription(dto.getResultDescription());
+
         entity.setCustomer(customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy customer")));
+
         entity.setDoctor(doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy doctor")));
+
         return entity;
     }
+
+
+
+
 }

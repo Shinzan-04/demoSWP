@@ -12,4 +12,7 @@ public class TestResultDTO {
     private String date;
     private String typeOfTest;
     private String resultDescription;
+    private String customerName;
+    private String customerEmail;
+
 }

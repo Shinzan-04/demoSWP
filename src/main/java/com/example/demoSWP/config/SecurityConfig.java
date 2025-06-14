@@ -63,7 +63,8 @@ public class SecurityConfig {
                                         "/api/doctors**",
                                         "/api/blog/**",
                                         "/api/arv-regimens**",
-                                "/api/arv-regimens/**"
+                                        "/api/arv-regimens/**",
+                                        "/api/test-results"
 
 
                                         ).permitAll() // Cho phép các endpoint này công khai
@@ -78,9 +79,15 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/api/blogposts/**").hasRole("DOCTOR")
                                 .requestMatchers(HttpMethod.DELETE, "/api/blogposts/**").hasRole("DOCTOR")
                                 .requestMatchers(HttpMethod.GET, "/api/arv-regimens/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.POST, "/api/test-results").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.PUT, "/api/test-results/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.DELETE, "/api/test-results/**").hasRole("DOCTOR")
+
+
                                 .requestMatchers("/api/customers/by-email").hasRole("DOCTOR")
 
                                 .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/test-results").permitAll()
 
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
