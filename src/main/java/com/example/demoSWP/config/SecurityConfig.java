@@ -5,6 +5,7 @@ import com.example.demoSWP.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -59,10 +60,29 @@ public class SecurityConfig {
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
-                                        "/api/doctors").permitAll() // Cho phép các endpoint này công khai
+                                        "/api/doctors**",
+                                        "/api/blog/**",
+                                        "/api/arv-regimens**",
+                                "/api/arv-regimens/**"
+
+
+                                        ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
                                 // Các yêu cầu OPTIONS là preflight request của CORS và cần được cho phép trước khi xác thực.
+                             //   .requestMatchers("/api/doctors/**").authenticated() // ✅ yêu cầu token cho /api/doctors/{id}, PUT, etc.
+                                .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
+                                .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
+                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll() // Ai cũng được xem
+                                .requestMatchers(HttpMethod.POST, "/api/blogposts").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.PUT, "/api/blogposts/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.DELETE, "/api/blogposts/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.GET, "/api/arv-regimens/**").hasRole("DOCTOR")
+                                .requestMatchers("/api/customers/by-email").hasRole("DOCTOR")
+
+                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll()
+
+
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
                 )
                 .userDetailsService(authenticationService) // Cấu hình UserDetailsService

@@ -2,6 +2,7 @@ package com.example.demoSWP.entity;
 
 import com.example.demoSWP.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
@@ -20,8 +21,9 @@ public class Doctor {
     private String fullName;
 
     private String specialization; // ✅ thêm chuyên khoa
-
+    private String avatarUrl;
     private String phone;
+    private String description;
 
     @Email(message = "Email bác sĩ không hợp lệ")
     @Column(unique = true, nullable = false)
@@ -32,8 +34,9 @@ public class Doctor {
     @Enumerated(EnumType.STRING)
     private Role role; // ✅ phân quyền bác sĩ nếu cần
 
+    @JsonManagedReference
     @OneToOne
-    @JoinColumn(name = "account_id")
+    @JoinColumn(name = "account_id", unique = true)
     private Account account;
 
     @JsonIgnore
@@ -48,7 +51,14 @@ public class Doctor {
         this.phone = phone;
         this.email = email;
         this.workExperienceYears = workExperienceYears;
-        this.role = role;
         this.account = account;
     }
+    @OneToMany(mappedBy = "doctor")
+    @JsonIgnore
+    private List<Schedule> schedules;
+
+    @OneToMany(mappedBy = "doctor")
+    @JsonIgnore
+    private List<TestResult> testResults;
+
 }

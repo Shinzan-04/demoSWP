@@ -1,4 +1,3 @@
-// src/main/java/com/example/demoSWP/repository/ReminderRepository.java
 package com.example.demoSWP.repository;
 
 import com.example.demoSWP.entity.Reminder;
@@ -11,13 +10,18 @@ import java.util.List;
 
 @Repository
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
-    List<Reminder> findByStatusAndReminderDateBefore(ReminderStatus status, LocalDateTime now);
-    // Corrected method name to match the property 'customerID' in Customer entity
-    List<Reminder> findByCustomerCustomerID(Long customerID);
 
+    // Lấy danh sách nhắc nhở theo trạng thái và trước thời điểm hiện tại (dùng trong cron job)
+    List<Reminder> findByStatusAndReminderDateBefore(ReminderStatus status, LocalDateTime now);
+
+    // Truy tìm theo customer thông qua ARV Regimen
+    List<Reminder> findByArvRegimen_Customer_CustomerID(Long customerID);
+
+    // Lấy nhắc nhở theo khoảng thời gian và trạng thái
     List<Reminder> findByReminderDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, ReminderStatus status);
 
-    List<Reminder> findByCustomer_CustomerIDAndReminderDateBetweenAndStatus(
+    // Lấy nhắc nhở trong ngày cho 1 bệnh nhân và trạng thái cụ thể
+    List<Reminder> findByArvRegimen_Customer_CustomerIDAndReminderDateBetweenAndStatus(
             Long customerID,
             LocalDateTime startOfDay,
             LocalDateTime endOfDay,

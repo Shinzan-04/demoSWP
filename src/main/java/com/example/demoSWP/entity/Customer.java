@@ -18,8 +18,6 @@ public class Customer {
     private Long customerID;
 
 
-
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING) // Lưu trữ enum dưới dạng chuỗi
     private Gender gender;
