@@ -1,133 +1,128 @@
-// src/main/java/com/example/demoSWP/service/RegistrationService.java
 package com.example.demoSWP.service;
 
-import com.example.demoSWP.entity.Customer;
+import com.example.demoSWP.dto.AppointmentRequest;
+import com.example.demoSWP.dto.RegistrationRequest;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.entity.Registration;
+import com.example.demoSWP.enums.VisitType;
 import com.example.demoSWP.exception.RegistrationNotFoundException;
-import com.example.demoSWP.payload.request.RegistrationRequest; // Import the RegistrationRequest DTO
 import com.example.demoSWP.repository.RegistrationRepository;
-import com.example.demoSWP.repository.CustomerRepository;
 import com.example.demoSWP.repository.DoctorRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Service // Indicates that this class is a service component
-public class RegistrationService { // No longer an interface, directly implements logic
+@Service
+public class RegistrationService {
 
-    private final RegistrationRepository registrationRepository;
-    private final CustomerRepository customerRepository; // Inject CustomerRepository
-    private final DoctorRepository doctorRepository;     // Inject DoctorRepository
-
-    // Constructor injection for all repositories
     @Autowired
-    public RegistrationService(RegistrationRepository registrationRepository,
-                               CustomerRepository customerRepository,
-                               DoctorRepository doctorRepository) {
-        this.registrationRepository = registrationRepository;
-        this.customerRepository = customerRepository;
-        this.doctorRepository = doctorRepository;
-    }
+    private RegistrationRepository registrationRepository;
 
-    /**
-     * Saves a new registration based on RegistrationRequest DTO.
-     * This method handles creating/finding Customer by email and finding Doctor by email.
-     * @param request The RegistrationRequest DTO containing all registration details.
-     * @return The saved Registration entity.
-     * @throws RuntimeException if Doctor is not found.
-     */
-    public Registration saveRegistrationFromRequest(RegistrationRequest request) {
-        // 1. Handle Customer: Find existing by email or create new
-        // Corrected: Now finding customer by email as requested
-        Customer customer = customerRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> {
-                    // If customer with this email doesn't exist, create a new one
-                    Customer newCustomer = new Customer();
-                    newCustomer.setFullName(request.getFullName());
-                    newCustomer.setEmail(request.getEmail());
-                    newCustomer.setGender(request.getGender());
-                    newCustomer.setDateOfBirth(request.getDateOfBirth());
-                    newCustomer.setPhone(request.getPhone()); // Keep phone for new customer
-                    newCustomer.setAddress(request.getAddress());
-                    return customerRepository.save(newCustomer); // Save the new customer
-                });
+    @Autowired
+    private DoctorRepository doctorRepository;
 
-        // 2. Handle Doctor: Find existing doctor by email
-        // Corrected: Now finding doctor by email as requested, not by ID
-        Doctor doctor = doctorRepository.findByFullName(request.getDoctorName())
-                .orElseThrow(() -> new RuntimeException("Doctor not found with email: " + request.getDoctorName()));
+    @Autowired
+    private ModelMapper modelMapper;
 
-        // 3. Create Registration entity from request and found Customer/Doctor
+    public Registration saveRegistrationFromRequest(Object request) {
         Registration registration = new Registration();
-        registration.setCustomer(customer); // Set the Customer object
-        registration.setDoctor(doctor);     // Set the Doctor object
-        registration.setAppointmentDate(request.getAppointmentDate());
-        registration.setSession(request.getSession());
-        registration.setSymptom(request.getSymptom());
-        registration.setSpecialization(request.getSpecialization());
-        registration.setMode(request.getMode());
-        registration.setNotes(request.getNotes()); // Set the notes field
+        Doctor doctor;
 
-        // Save the new registration
+        if (request instanceof RegistrationRequest reg) {
+            doctor = doctorRepository.findById(reg.getDoctorId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + reg.getDoctorId()));
+
+            registration.setFullName(reg.getFullName());
+            registration.setEmail(reg.getEmail());
+            registration.setPhone(reg.getPhone());
+            registration.setGender(reg.getGender());
+            registration.setDateOfBirth(reg.getDateOfBirth());
+            registration.setAddress(reg.getAddress());
+            registration.setSpecialization(reg.getSpecialization());
+            registration.setAppointmentDate(reg.getAppointmentDate());
+            registration.setSession(reg.getSession());
+            registration.setSymptom(reg.getSymptom());
+            registration.setNotes(reg.getNotes());
+            registration.setMode(reg.getMode()); // ✅ FE phải gửi
+            registration.setVisitType(VisitType.REGISTRATION);
+            registration.setDoctor(doctor);
+
+        } else if (request instanceof AppointmentRequest app) {
+            doctor = doctorRepository.findById(app.getDoctorId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + app.getDoctorId()));
+
+            registration = new Registration();
+
+            registration.setEmail(app.getEmail());
+            registration.setPhone(app.getPhone());
+            registration.setSpecialization(app.getSpecialization());
+            registration.setAppointmentDate(app.getAppointmentDate());
+            registration.setSession(app.getSession());
+            registration.setSymptom(app.getSymptom());
+            registration.setNotes(app.getNotes());
+
+            registration.setMode("Online");
+
+            registration.setVisitType(VisitType.APPOINTMENT);
+            registration.setDoctor(doctor);
+
+
+        } else {
+            throw new IllegalArgumentException("Loại dữ liệu không hợp lệ");
+        }
+
         return registrationRepository.save(registration);
     }
 
-
-    /**
-     * Retrieves all registrations from the database.
-     * @return A list of all registrations.
-     */
-    public List<Registration> getAllRegistrations() {
-        return registrationRepository.findAll();
+    public List<RegistrationRequest> getAllRegistrations() {
+        return registrationRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    private RegistrationRequest mapToDTO(Registration registration) {
+        RegistrationRequest dto = modelMapper.map(registration, RegistrationRequest.class);
+        if (registration.getDoctor() != null) {
+            dto.setDoctorId(registration.getDoctor().getDoctorId()); // mapping thủ công nếu cần
+        }
+        return dto;
     }
 
-    /**
-     * Retrieves a registration by its ID.
-     * @param id The ID of the registration to retrieve.
-     * @return An Optional containing the registration if found, otherwise empty.
-     */
     public Optional<Registration> getRegistrationById(Long id) {
         return registrationRepository.findById(id);
     }
 
-    /**
-     * Updates an existing registration.
-     * @param id The ID of the registration to update.
-     * @param registrationDetails The registration object with updated details.
-     * @return The updated registration object.
-     * @throws RegistrationNotFoundException if the registration with the given ID is not found.
-     */
-    public Registration updateRegistration(Long id, Registration registrationDetails) {
-        // Find the existing registration by ID
-        Registration existingRegistration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RegistrationNotFoundException("Registration not found with ID: " + id));
+    public Registration updateRegistration(Long id, RegistrationRequest reg) {
+        Registration existing = registrationRepository.findById(id)
+                .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
 
-        // Update fields of the existing registration with details from registrationDetails
-        existingRegistration.setCustomer(registrationDetails.getCustomer());
-        existingRegistration.setDoctor(registrationDetails.getDoctor());
-        existingRegistration.setAppointmentDate(registrationDetails.getAppointmentDate());
-        existingRegistration.setSession(registrationDetails.getSession());
-        existingRegistration.setSymptom(registrationDetails.getSymptom());
-        existingRegistration.setSpecialization(registrationDetails.getSpecialization());
-        existingRegistration.setMode(registrationDetails.getMode());
-        existingRegistration.setNotes(registrationDetails.getNotes()); // Update notes field
+        Doctor doctor = doctorRepository.findById(reg.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + reg.getDoctorId()));
 
-        // Save the updated registration
-        return registrationRepository.save(existingRegistration);
+        existing.setFullName(reg.getFullName());
+        existing.setEmail(reg.getEmail());
+        existing.setPhone(reg.getPhone());
+        existing.setGender(reg.getGender());
+        existing.setDateOfBirth(reg.getDateOfBirth());
+        existing.setAddress(reg.getAddress());
+        existing.setSpecialization(reg.getSpecialization());
+        existing.setAppointmentDate(reg.getAppointmentDate());
+        existing.setSession(reg.getSession());
+        existing.setSymptom(reg.getSymptom());
+        existing.setNotes(reg.getNotes());
+        existing.setMode(reg.getMode());
+        existing.setVisitType(VisitType.REGISTRATION);
+        existing.setDoctor(doctor);
+
+        return registrationRepository.save(existing);
     }
 
-    /**
-     * Deletes a registration by its ID.
-     * @param id The ID of the registration to delete.
-     * @throws RegistrationNotFoundException if the registration with the given ID is not found.
-     */
     public void deleteRegistration(Long id) {
-        // Check if the registration exists before deleting
         if (!registrationRepository.existsById(id)) {
-            throw new RegistrationNotFoundException("Registration not found with ID: " + id);
+            throw new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id);
         }
         registrationRepository.deleteById(id);
     }

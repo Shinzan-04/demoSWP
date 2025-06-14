@@ -47,7 +47,7 @@ public class DoctorService {
             existing.setPhone(dto.getPhone());
             existing.setEmail(dto.getEmail());
             existing.setWorkExperienceYears(dto.getWorkExperienceYears());
-            existing.setRole(dto.getRole());
+            existing.setDescription(dto.getDescription());
             return toDTO(doctorRepository.save(existing));
         }).orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + id));
     }

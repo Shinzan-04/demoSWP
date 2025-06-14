@@ -37,7 +37,4 @@ public class Schedule {
     @JsonBackReference
     private Doctor doctor;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // nếu bạn không cần hiển thị danh sách lịch hẹn
-    private List<Appointment> appointments;
 }

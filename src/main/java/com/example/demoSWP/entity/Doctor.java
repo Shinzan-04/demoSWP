@@ -34,14 +34,10 @@ public class Doctor {
     @Enumerated(EnumType.STRING)
     private Role role; // ✅ phân quyền bác sĩ nếu cần
 
-    @JsonManagedReference
     @OneToOne
     @JoinColumn(name = "account_id", unique = true)
     private Account account;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "doctor")
-    private List<BlogPost> posts;
 
     public Doctor() {}
 

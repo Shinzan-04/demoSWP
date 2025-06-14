@@ -16,12 +16,8 @@ public class DoctorDTO {
     private int workExperienceYears;
     private String description;
     private String avatarUrl;
-    private Role role;
-    public DoctorDTO(String fullName, String phone, String email) {
-        this.fullName = fullName;
-        this.phone = phone;
-        this.email = email;
-    }
+
+
     public static DoctorDTO fromEntity(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
         dto.setDoctorId(doctor.getDoctorId());

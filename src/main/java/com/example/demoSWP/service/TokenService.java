@@ -68,10 +68,6 @@ public class TokenService {
         if (account != null && roleName != null) {
             account.setRole(Role.valueOf(roleName)); // Gán lại role từ token
         }
-        if (account != null) {
-            account.setRole(Role.ADMIN); // ⚠️ hardcode để test
-        }
-
         return account;
     }
 

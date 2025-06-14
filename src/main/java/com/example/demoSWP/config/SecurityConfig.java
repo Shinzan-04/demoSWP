@@ -55,6 +55,7 @@ public class SecurityConfig {
                         req -> req
                                 .requestMatchers("/api/login",
                                         "/api/register",
+                                        "/api/registrations",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/v2/api-docs/**",
@@ -69,6 +70,10 @@ public class SecurityConfig {
                                 .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
                                 .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
+
+
+
+
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
                 )
