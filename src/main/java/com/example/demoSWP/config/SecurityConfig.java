@@ -59,7 +59,8 @@ public class SecurityConfig {
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
-                                        "/api/doctors"
+                                        "/api/doctors",
+                                        "/api/medical-histories/customer/**"
 
                                         ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
