@@ -18,11 +18,13 @@ public class Customer {
     private Long customerID;
 
 
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING) // Lưu trữ enum dưới dạng chuỗi
     private Gender gender;
 
     private LocalDate dateOfBirth;
+
 
     @Column(unique = true) // Đảm bảo số điện thoại là duy nhất
     private String phone;

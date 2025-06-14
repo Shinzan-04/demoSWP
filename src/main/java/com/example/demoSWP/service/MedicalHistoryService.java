@@ -37,21 +37,41 @@ public class MedicalHistoryService {
     }
 
     public MedicalHistoryDTO create(MedicalHistoryDTO dto) {
-        MedicalHistory entity = toEntity(dto);
-        return toDTO(historyRepository.save(entity));
+        MedicalHistory entity = modelMapper.map(dto, MedicalHistory.class);
+
+        Customer customer = customerRepository.findById(dto.getCustomerID())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
+        entity.setCustomer(customer);
+
+        MedicalHistory saved = historyRepository.save(entity);
+        return toDTO(saved);
+    }
+    public List<MedicalHistoryDTO> getByCustomerId(Long customerId) {
+        return historyRepository.findByCustomerCustomerID(customerId).stream()
+                .map(this::toDTO)
+                .toList();
     }
 
+
+
+
     public MedicalHistoryDTO update(Long id, MedicalHistoryDTO dto) {
-        return historyRepository.findById(id)
-                .map(existing -> {
-                    existing.setDiseaseName(dto.getDiseaseName());
-                    existing.setDiagnosisDate(dto.getDiagnosisDate());
-                    existing.setNote(dto.getNote());
-                    Customer customer = customerRepository.findById(dto.getCustomerId())
-                            .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
-                    existing.setCustomer(customer);
-                    return toDTO(historyRepository.save(existing));
-                }).orElseThrow(() -> new RuntimeException("Không tìm thấy lịch sử với id: " + id));
+        return historyRepository.findById(id).map(existing -> {
+            existing.setVisitDate(dto.getVisitDate());
+            existing.setDoctorId(dto.getDoctorId());
+            existing.setReason(dto.getReason());
+            existing.setDiagnosis(dto.getDiagnosis());
+            existing.setTreatment(dto.getTreatment());
+            existing.setPrescription(dto.getPrescription());
+            existing.setNotes(dto.getNotes());
+
+            Customer customer = customerRepository.findById(dto.getCustomerID())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
+            existing.setCustomer(customer);
+
+            MedicalHistory updated = historyRepository.save(existing);
+            return toDTO(updated);
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy lịch sử với id: " + id));
     }
 
     public void delete(Long id) {
@@ -60,14 +80,20 @@ public class MedicalHistoryService {
 
     private MedicalHistoryDTO toDTO(MedicalHistory entity) {
         MedicalHistoryDTO dto = modelMapper.map(entity, MedicalHistoryDTO.class);
-        dto.setCustomerId(entity.getCustomer().getCustomerID());
+        if (entity.getCustomer() != null) {
+            dto.setCustomerID(entity.getCustomer().getCustomerID());
+        } else {
+            dto.setCustomerID(null);
+        }
         return dto;
     }
 
     private MedicalHistory toEntity(MedicalHistoryDTO dto) {
         MedicalHistory entity = modelMapper.map(dto, MedicalHistory.class);
-        entity.setCustomer(customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy customer")));
+        Customer customer = customerRepository.findById(dto.getCustomerID())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
+        entity.setCustomer(customer);
         return entity;
     }
 }
+
