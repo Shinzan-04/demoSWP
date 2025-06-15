@@ -63,6 +63,7 @@ public class SecurityConfig {
                                         "/webjars/**",
                                         "/api/doctors"
 
+
                                         ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
                                 // Các yêu cầu OPTIONS là preflight request của CORS và cần được cho phép trước khi xác thực.
