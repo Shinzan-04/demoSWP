@@ -20,26 +20,22 @@ public class CustomerDTO {
     private String phone;
     private String address;
     private Gender gender;
-    private String dateOfBirth; // format as ISO string or LocalDate
+    private LocalDate dateOfBirth; // format as ISO string or LocalDate
     private String avatarUrl;
 
-    public CustomerDTO(String fullName, String phone, String email) {
-        this.fullName = fullName;
-        this.phone = phone;
-        this.email = email;
-    }
 
+    public static CustomerDTO formEntity(Customer customer) {
+        CustomerDTO dto = new CustomerDTO();
+        dto.setCustomerID(customer.getCustomerID());
+        dto.setFullName(customer.getFullName());
+        dto.setEmail(customer.getEmail());
+        dto.setPhone(customer.getPhone());
+        dto.setAddress(customer.getAddress());
+        dto.setGender(customer.getGender());
+        dto.setAvatarUrl(customer.getAvatarUrl());     // THÊM
+        dto.setDateOfBirth(customer.getDateOfBirth()); // ✅
 
-    public static Customer toEntity(CustomerDTO dto) {
-        Customer customer = new Customer();
-        customer.setCustomerID(dto.getCustomerID());
-        customer.setFullName(dto.getFullName());
-        customer.setEmail(dto.getEmail());
-        customer.setPhone(dto.getPhone());
-        customer.setAddress(dto.getAddress());
-        customer.setGender(dto.getGender());
-        customer.setDateOfBirth(LocalDate.parse(dto.getDateOfBirth())); // CHUYỂN
-        return customer;
+        return dto;
     }
 
 
