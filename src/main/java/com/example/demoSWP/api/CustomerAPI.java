@@ -44,4 +44,8 @@ public class CustomerAPI {
     ) throws IOException {
         return customerService.updateCustomerWithAvatar(id, customerDto, avatarFile);
     }
+    @GetMapping("/by-email")
+    public CustomerDTO getCustomerByEmail(@RequestParam String email) {
+        return customerService.getByEmail(email);
+    }
 }

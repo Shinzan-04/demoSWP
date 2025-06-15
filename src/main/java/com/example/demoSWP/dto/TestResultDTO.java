@@ -9,6 +9,7 @@ public class TestResultDTO {
     private Long testResultId;
     private Long customerId;
     private Long doctorId;
+    private String doctorName;
     private String date;
     private String typeOfTest;
     private String resultDescription;
