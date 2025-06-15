@@ -44,7 +44,7 @@ public class CustomerService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với email: " + email));
     }
 
-    // Update with optional avatar upload
+    // Update with optional avatar upload, enhanced to match DoctorService style
     public CustomerDTO updateCustomerWithAvatar(Long id, CustomerDTO dto, MultipartFile avatarFile) throws IOException {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
@@ -56,11 +56,15 @@ public class CustomerService {
         customer.setGender(dto.getGender());
 
         if (dto.getDateOfBirth() != null) {
-            customer.setDateOfBirth(java.time.LocalDate.parse(dto.getDateOfBirth()));
-            // handle parsing carefully based on frontend format
+            dto.setDateOfBirth(customer.getDateOfBirth()); // ✅
+
         }
 
-
+        // If new avatar file is present and not empty, save and update avatarUrl
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String fileUrl = saveAvatarFile(avatarFile);
+            customer.setAvatarUrl(fileUrl);
+        }
 
         customerRepository.save(customer);
         return toDTO(customer);
@@ -71,17 +75,25 @@ public class CustomerService {
     }
 
     public String saveAvatarFile(MultipartFile file) throws IOException {
+        // Use same upload path concept as DoctorService
         String uploadDir = System.getProperty("user.dir") + "/uploads";
+
+        System.out.println("===> Upload path: " + uploadDir);
 
         File uploadFolder = new File(uploadDir);
         if (!uploadFolder.exists()) {
-            uploadFolder.mkdirs();
+            boolean created = uploadFolder.mkdirs();
+            System.out.println("===> Created upload folder: " + created);
         }
 
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         File destination = new File(uploadFolder, filename);
+
+        System.out.println("===> Destination path: " + destination.getAbsolutePath());
+
         file.transferTo(destination);
 
         return "/uploads/" + filename;
     }
 }
+

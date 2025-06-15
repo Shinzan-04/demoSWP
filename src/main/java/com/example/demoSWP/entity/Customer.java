@@ -28,6 +28,7 @@ public class Customer {
 
     @Column(unique = true) // Đảm bảo số điện thoại là duy nhất
     private String phone;
+    private String avatarUrl;
     private String email;
     private String address;
     private String fullName;

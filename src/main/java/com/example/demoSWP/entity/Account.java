@@ -39,6 +39,11 @@ public class Account implements UserDetails {
     @OneToOne(mappedBy = "account")
     private Doctor doctor;
 
+    @JsonBackReference
+    @OneToOne(mappedBy = "account")
+    private Customer customer;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,6 +1,7 @@
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.CustomerDTO;
+import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -32,8 +33,13 @@ public class CustomerAPI {
 
     @GetMapping("/me")
     public CustomerDTO getMyProfile() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return customerService.getByEmail(email);
+        Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (account == null || account.getCustomer() == null) {
+            throw new RuntimeException("Không tìm thấy thông tin bác sĩ.");
+        }
+
+        return CustomerDTO.formEntity(account.getCustomer()); // Chuyển đổi sang DTO nếu cần
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
