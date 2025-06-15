@@ -20,6 +20,12 @@ public class MedicalHistoryAPI {
         return medicalHistoryService.getAll();
     }
 
+    @GetMapping("/customer/{customerId}")
+    public List<MedicalHistoryDTO> getByCustomerId(@PathVariable Long customerId) {
+        return medicalHistoryService.getByCustomerId(customerId);
+    }
+
+
     @GetMapping("/{id}")
     public MedicalHistoryDTO getById(@PathVariable Long id) {
         return medicalHistoryService.getById(id)
