@@ -24,8 +24,6 @@ public class CustomerDTO {
     private String avatarUrl;
 
 
-
-
     public static CustomerDTO formEntity(Customer customer) {
         CustomerDTO dto = new CustomerDTO();
         dto.setCustomerID(customer.getCustomerID());

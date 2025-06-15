@@ -5,6 +5,7 @@ import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,7 @@ public class DoctorAPI {
         return doctorService.create(dto);
     }
 
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public DoctorDTO updateDoctorProfile(
             @PathVariable Long id,
@@ -60,5 +62,20 @@ public class DoctorAPI {
 
         return DoctorDTO.fromEntity(account.getDoctor()); // Chuyển đổi sang DTO nếu cần
     }
+
+    @PutMapping(value = "/update-no-avatar/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public DoctorDTO updateDoctorNoAvatar(
+            @PathVariable Long id,
+            @RequestBody DoctorDTO doctorDto
+    ) {
+        return doctorService.update(id, doctorDto);
+    }
+
+    @GetMapping("/with-avatar")
+    public ResponseEntity<List<DoctorDTO>> getDoctorsWithAvatar() {
+        List<DoctorDTO> doctorsWithAvatar = doctorService.getAllDoctorsWithAvatar();
+        return ResponseEntity.ok(doctorsWithAvatar);
+    }
+
 
 }

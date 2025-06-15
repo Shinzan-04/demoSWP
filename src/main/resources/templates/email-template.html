@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome Email</title>
+</head>
+<body>
+<table>
+  <tr>
+    <td>
+      <h2>Xin chào <span th:text="${name}">Tên người dùng</span>,</h2>
+      <p>Bạn đã đăng ký tài khoản thành công.</p>
+      <p>
+        <a th:href="${link}" style="padding: 10px 20px; background-color: #f1556c; color: #fff; text-decoration: none; border-radius: 5px;">
+          <span th:text="${button}">Đăng nhập</span>
+        </a>
+      </p>
+      <p>Cảm ơn bạn đã chọn <strong>HIV streament.vn</strong></p>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

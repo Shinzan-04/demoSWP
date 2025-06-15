@@ -50,7 +50,6 @@ public class ReminderAPI {
                 .orElseThrow(() -> new RuntimeException("Regimen not found"));
 
         Reminder reminder = new Reminder();
-        reminder.setCustomer(customer);
         reminder.setArvRegimen(regimen);
         reminder.setReminderDate(dto.getReminderDate());
         reminder.setReminderContent(dto.getReminderContent());
@@ -64,7 +63,7 @@ public class ReminderAPI {
 
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Reminder>> getByCustomer(@PathVariable Long customerID) {
-        return ResponseEntity.ok(reminderService.getRemindersByCustomer(customerID));
+        return ResponseEntity.ok(reminderService.getAllRemindersByCustomer(customerID));
     }
 
     @PutMapping("/{id}/status")

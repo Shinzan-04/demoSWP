@@ -4,6 +4,7 @@ package com.example.demoSWP.entity;
 import com.example.demoSWP.enums.Gender;
 import com.example.demoSWP.enums.Role;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,9 +36,13 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     public Role role; // Trường này giữ vai trò của người dùng
 
-    @JsonBackReference
+
     @OneToOne(mappedBy = "account")
+    @JsonIgnore
     private Doctor doctor;
+    @OneToOne(mappedBy = "account")
+    @JsonIgnore
+    private Customer customer;
 
     @JsonBackReference
     @OneToOne(mappedBy = "account")

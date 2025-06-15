@@ -1,7 +1,8 @@
-// src/main/java/com/example/demoSWP/payload/request/RegistrationRequest.java
-package com.example.demoSWP.payload.request;
+package com.example.demoSWP.dto;// src/main/java/com/example/demoSWP/payload/request/RegistrationRequest.java
+
 
 import com.example.demoSWP.enums.Gender; // Assuming you have an enum for Gender
+import com.example.demoSWP.enums.VisitType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,30 +21,24 @@ import java.util.Date; // For appointmentDate
 @AllArgsConstructor // Lombok annotation to generate a constructor with all fields
 public class RegistrationRequest {
 
+    private Long registrationID;
+    private Long doctorId;
     // Customer Information from the form
-    @NotBlank(message = "Họ và tên không được để trống")
     private String fullName;
 
     @NotBlank(message = "Email khách hàng không được để trống")
     @Email(message = "Email khách hàng không hợp lệ")
     private String email; // Customer's email
 
-    @NotNull(message = "Giới tính không được để trống")
     private Gender gender; // Using Gender enum, assuming it exists
 
-    @NotNull(message = "Năm sinh không được để trống")
     @PastOrPresent(message = "Năm sinh không thể ở tương lai")
     private LocalDate dateOfBirth;
 
     @NotBlank(message = "Số điện thoại không được để trống")
     private String phone;
 
-    @NotBlank(message = "Địa chỉ không được để trống")
     private String address;
-
-    // Doctor Information (now by name)
-    @NotBlank(message = "Tên bác sĩ không được để trống") // Changed to doctorName
-    private String doctorName; // Changed from doctorEmail to doctorName
 
     // Registration Details from the form
     @NotBlank(message = "Chuyên khoa không được để trống")
@@ -61,4 +56,5 @@ public class RegistrationRequest {
     private String symptom; // Triệu chứng mô tả (có thể để trống)
 
     private String notes; // Thêm ghi chú (có thể để trống)
+    private VisitType visitType;
 }

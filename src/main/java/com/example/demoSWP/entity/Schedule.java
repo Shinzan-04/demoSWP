@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -18,15 +19,22 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long scheduleId;
 
-    private LocalDate date;
-    private LocalTime startTime;
+    @Column(nullable = false)
+    private String title; // Ví dụ: "Khám bệnh (Sáng)"
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
+
+    private String room; // Phòng khám (nhập từ input)
+
+    private String patientName; // Tên người đặt lịch (nếu có)
 
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
     @JsonBackReference
     private Doctor doctor;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // nếu bạn không cần hiển thị danh sách lịch hẹn
-    private List<Appointment> appointments;
 }

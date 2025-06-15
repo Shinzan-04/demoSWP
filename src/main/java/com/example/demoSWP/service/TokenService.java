@@ -1,6 +1,7 @@
 package com.example.demoSWP.service;
 
 import com.example.demoSWP.entity.Account;
+import com.example.demoSWP.enums.Role;
 import com.example.demoSWP.repository.AuthenticationRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -58,10 +59,18 @@ public class TokenService {
     }
 
     // get userName form CLAIM
-    public Account extractAccount (String token){
-        String email = extractClaim(token,Claims::getSubject);
-        return authenticationRepository.findAccountByEmail(email);
+    public Account extractAccount(String token) {
+        Claims claims = extractAllClaims(token);
+        String email = claims.getSubject();
+        String roleName = (String) claims.get("role");
+
+        Account account = authenticationRepository.findAccountByEmail(email);
+        if (account != null && roleName != null) {
+            account.setRole(Role.valueOf(roleName)); // Gán lại role từ token
+        }
+        return account;
     }
+
 
 
     public boolean isTokenExpired(String token){

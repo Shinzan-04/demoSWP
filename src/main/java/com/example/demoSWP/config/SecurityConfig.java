@@ -5,6 +5,7 @@ import com.example.demoSWP.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -54,13 +55,13 @@ public class SecurityConfig {
                         req -> req
                                 .requestMatchers("/api/login",
                                         "/api/register",
+                                        "/api/registrations",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
-                                        "/api/doctors",
-                                        "/api/medical-histories/customer/**"
+                                        "/api/doctors"
 
                                         ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
@@ -68,6 +69,12 @@ public class SecurityConfig {
                              //   .requestMatchers("/api/doctors/**").authenticated() // ✅ yêu cầu token cho /api/doctors/{id}, PUT, etc.
                                 .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
+                                .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
+
+
+
+
+
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
                 )
                 .userDetailsService(authenticationService) // Cấu hình UserDetailsService

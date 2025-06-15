@@ -1,5 +1,6 @@
 package com.example.demoSWP.dto;
 
+import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.enums.Gender;
 import com.example.demoSWP.enums.Role;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ public class AccountResponse {
     public Role role;
 
     public String token;
+    private Doctor doctor;
 
 
 }

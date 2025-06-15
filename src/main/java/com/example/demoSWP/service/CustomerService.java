@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,7 +24,6 @@ public class CustomerService {
     @Autowired
     private ModelMapper modelMapper;
 
-    // Get all customers (optional)
     public List<CustomerDTO> getAll() {
         return customerRepository.findAll()
                 .stream()
@@ -31,20 +31,17 @@ public class CustomerService {
                 .toList();
     }
 
-    // Get one by ID
     public Optional<CustomerDTO> getById(Long id) {
         return customerRepository.findById(id)
                 .map(this::toDTO);
     }
 
-    // Get current customer profile by email (can also be in AuthenticationService)
     public CustomerDTO getByEmail(String email) {
         return customerRepository.findByEmail(email)
                 .map(this::toDTO)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với email: " + email));
     }
 
-    // Update with optional avatar upload, enhanced to match DoctorService style
     public CustomerDTO updateCustomerWithAvatar(Long id, CustomerDTO dto, MultipartFile avatarFile) throws IOException {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
@@ -56,14 +53,22 @@ public class CustomerService {
         customer.setGender(dto.getGender());
 
         if (dto.getDateOfBirth() != null) {
-            dto.setDateOfBirth(customer.getDateOfBirth()); // ✅
-
+            customer.setDateOfBirth((dto.getDateOfBirth()));
         }
 
-        // If new avatar file is present and not empty, save and update avatarUrl
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            String fileUrl = saveAvatarFile(avatarFile);
-            customer.setAvatarUrl(fileUrl);
+            String filename = UUID.randomUUID().toString() + "_" + avatarFile.getOriginalFilename();
+            String uploadDir = System.getProperty("user.dir") + "/uploads";
+
+            File uploadPath = new File(uploadDir);
+            if (!uploadPath.exists()) {
+                uploadPath.mkdirs();
+            }
+
+            File destFile = new File(uploadPath, filename);
+            avatarFile.transferTo(destFile);
+
+            customer.setAvatarUrl("/uploads/" + filename); // Đường dẫn tương đối
         }
 
         customerRepository.save(customer);
@@ -73,27 +78,4 @@ public class CustomerService {
     private CustomerDTO toDTO(Customer customer) {
         return modelMapper.map(customer, CustomerDTO.class);
     }
-
-    public String saveAvatarFile(MultipartFile file) throws IOException {
-        // Use same upload path concept as DoctorService
-        String uploadDir = System.getProperty("user.dir") + "/uploads";
-
-        System.out.println("===> Upload path: " + uploadDir);
-
-        File uploadFolder = new File(uploadDir);
-        if (!uploadFolder.exists()) {
-            boolean created = uploadFolder.mkdirs();
-            System.out.println("===> Created upload folder: " + created);
-        }
-
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        File destination = new File(uploadFolder, filename);
-
-        System.out.println("===> Destination path: " + destination.getAbsolutePath());
-
-        file.transferTo(destination);
-
-        return "/uploads/" + filename;
-    }
 }
-

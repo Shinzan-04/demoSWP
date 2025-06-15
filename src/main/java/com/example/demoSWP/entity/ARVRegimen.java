@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ARVRegimen {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long arvRegimenId;
@@ -26,6 +27,13 @@ public class ARVRegimen {
     private String regimenName;
     private String regimenCode;
     private String description;
-    // thời gian điều trị theo tháng
+
+    // Thời gian điều trị theo tháng
     private int duration;
+
+    // Ngày kết thúc điều trị (có thể tính từ createDate + duration)
+    private LocalDate endDate;
+
+    // Lịch uống thuốc, ví dụ: "Sáng, Trưa, Tối"
+    private String medicationSchedule;
 }

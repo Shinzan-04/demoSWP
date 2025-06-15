@@ -31,15 +31,18 @@ public class CustomerAPI {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
     }
 
+    @GetMapping("/by-email")
+    public CustomerDTO getCustomerByEmail(@RequestParam String email) {
+        return customerService.getByEmail(email);
+    }
+
     @GetMapping("/me")
     public CustomerDTO getMyProfile() {
         Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         if (account == null || account.getCustomer() == null) {
-            throw new RuntimeException("Không tìm thấy thông tin bác sĩ.");
+            throw new RuntimeException("Không tìm thấy hồ sơ khách hàng.");
         }
-
-        return CustomerDTO.formEntity(account.getCustomer()); // Chuyển đổi sang DTO nếu cần
+        return CustomerDTO.formEntity(account.getCustomer());
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,11 +1,15 @@
 package com.example.demoSWP.entity;
 
+import com.example.demoSWP.enums.Gender;
+import com.example.demoSWP.enums.VisitType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date; // Using java.util.Date as per previous Registration.java, but LocalDate is often preferred for dates without time
 
 @Entity // Marks this class as a JPA entity
@@ -21,12 +25,17 @@ public class Registration {
     @Column(name = "registration_id") // Maps the field to a column named 'registration_id'
     private Long registrationID;
 
-    @ManyToOne // Defines a many-to-one relationship with the Customer entity
-    @JoinColumn(name = "customer_id", nullable = false) // Specifies the foreign key column in the 'registrations' table
-    private Customer customer; // Liên kết với thực thể Customer
+
+    private String fullName; // Liên kết với thực thể Customer
+    private String email;
+    private String phone;
+    private String address;
+    private Gender gender;
+    private LocalDate dateOfBirth;
 
     @ManyToOne // Defines a many-to-one relationship with the Doctor entity
     @JoinColumn(name = "doctor_id", nullable = false) // Specifies the foreign key column in the 'registrations' table
+    @JsonIgnore
     private Doctor doctor; // Liên kết với thực thể Doctor
 
     @Column(name = "appointment_date", nullable = false) // Maps the field to a column and makes it non-nullable
@@ -46,4 +55,9 @@ public class Registration {
 
     @Column(name = "notes", columnDefinition = "TEXT") // New field for "Ghi chú" (Notes)
     private String notes; // Thêm trường ghi chú từ form
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VisitType visitType; // REGISTRATION, APPOINTMENT
+
+
 }

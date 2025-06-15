@@ -2,13 +2,9 @@ package com.example.demoSWP.dto;
 
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.enums.Role;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DoctorDTO {
@@ -20,12 +16,8 @@ public class DoctorDTO {
     private int workExperienceYears;
     private String description;
     private String avatarUrl;
-    private Role role;
-    public DoctorDTO(String fullName, String phone, String email) {
-        this.fullName = fullName;
-        this.phone = phone;
-        this.email = email;
-    }
+
+
     public static DoctorDTO fromEntity(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
         dto.setDoctorId(doctor.getDoctorId());
