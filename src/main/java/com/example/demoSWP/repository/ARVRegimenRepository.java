@@ -2,6 +2,7 @@
 package com.example.demoSWP.repository;
 
 import com.example.demoSWP.entity.ARVRegimen;
+import com.example.demoSWP.entity.Customer;
 import com.example.demoSWP.entity.Reminder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,6 @@ public interface ARVRegimenRepository extends JpaRepository<ARVRegimen, Long> {
     List<ARVRegimen> findByCustomerCustomerID(Long customerId);
 
     Optional<ARVRegimen> findByArvRegimenId(Long id);
+
+
 }
