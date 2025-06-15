@@ -32,7 +32,7 @@ public class Customer {
     private String email;
     private String address;
     private String fullName;
-    private String avatarUrl;
+
 
     @OneToOne
     @JoinColumn(name = "account_id")

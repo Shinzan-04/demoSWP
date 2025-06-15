@@ -44,9 +44,7 @@ public class Account implements UserDetails {
     @JsonIgnore
     private Customer customer;
 
-    @JsonBackReference
-    @OneToOne(mappedBy = "account")
-    private Customer customer;
+
 
 
 
