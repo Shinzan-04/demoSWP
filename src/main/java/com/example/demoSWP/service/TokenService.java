@@ -18,20 +18,21 @@ import java.util.function.Function;
 
 @Service
 public class TokenService {
-
     @Autowired
     AuthenticationRepository authenticationRepository;
 
     private final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
 
-    private SecretKey getSigninKey() {
+    private SecretKey getSigninKey(){
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Account account) {
+        // Lấy thông tin doctor nếu có (trường hợp account là bác sĩ)
         Long doctorId = (account.getDoctor() != null) ? account.getDoctor().getDoctorId() : null;
 
+        // Tạo claims (payload của token)
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", account.getRole().name());
         if (doctorId != null) {
@@ -47,44 +48,42 @@ public class TokenService {
                 .compact();
     }
 
+
+    // form token to Claim Object
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigninKey())
+        return  Jwts.parser().
+                verifyWith(getSigninKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
+    // get userName form CLAIM
     public Account extractAccount(String token) {
         Claims claims = extractAllClaims(token);
         String email = claims.getSubject();
         String roleName = (String) claims.get("role");
 
         Account account = authenticationRepository.findAccountByEmail(email);
-        if (account != null) {
-            try {
-                Role extractedRole = Role.valueOf(roleName); // validate role
-                account.setRole(extractedRole);
-            } catch (Exception e) {
-                System.out.println("⚠️ Lỗi khi parse role từ token: " + e.getMessage());
-            }
-        } else {
-            System.out.println("⚠️ Không tìm thấy account với email: " + email);
+        if (account != null && roleName != null) {
+            account.setRole(Role.valueOf(roleName)); // Gán lại role từ token
         }
-
         return account;
     }
 
-    public boolean isTokenExpired(String token) {
+
+
+    public boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    // get Expiration form CLAIM
+    public Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+    // from claim and extract specific data type.
+    public <T> T extractClaim(String token, Function<Claims,T> resolver){
         Claims claims = extractAllClaims(token);
-        return resolver.apply(claims);
+        return  resolver.apply(claims);
     }
 }

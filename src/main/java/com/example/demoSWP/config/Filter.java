@@ -37,6 +37,7 @@ public class Filter extends OncePerRequestFilter {
     private final List<String> PUBLIC_API = List.of(
             "/api/login",
             "/api/register",
+            "/api/registrations",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/v2/api-docs/**",
@@ -44,7 +45,7 @@ public class Filter extends OncePerRequestFilter {
             "/webjars/**",
             // Thêm các API khác mà bạn đã định nghĩa là public trong SecurityConfig (nếu có)
 
-
+            "/api/blogs/**",
             "/api/service/**",
             "/api/posts/**",
             "/uploads/**"

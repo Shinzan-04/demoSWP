@@ -55,17 +55,13 @@ public class SecurityConfig {
                         req -> req
                                 .requestMatchers("/api/login",
                                         "/api/register",
+                                        "/api/registrations",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
-                                        "/api/doctors**",
-                                        "/api/blog/**",
-                                        "/api/arv-regimens**",
-                                        "/api/arv-regimens/**",
-                                        "/api/test-results"
-
+                                        "/api/doctors"
 
                                         ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
@@ -74,20 +70,9 @@ public class SecurityConfig {
                                 .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
                                 .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
-                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll() // Ai cũng được xem
-                                .requestMatchers(HttpMethod.POST, "/api/blogposts").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.PUT, "/api/blogposts/**").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.DELETE, "/api/blogposts/**").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.GET, "/api/arv-regimens/**").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.POST, "/api/test-results").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.PUT, "/api/test-results/**").hasRole("DOCTOR")
-                                .requestMatchers(HttpMethod.DELETE, "/api/test-results/**").hasRole("DOCTOR")
 
 
-                                .requestMatchers("/api/customers/by-email").hasRole("DOCTOR")
 
-                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/test-results").permitAll()
 
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực

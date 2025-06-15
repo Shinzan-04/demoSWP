@@ -39,9 +39,6 @@ public class Doctor {
     @JoinColumn(name = "account_id", unique = true)
     private Account account;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "doctor")
-    private List<BlogPost> posts;
 
     public Doctor() {}
 
