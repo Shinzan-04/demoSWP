@@ -26,11 +26,22 @@ public class ARVRegimenService {
     @Autowired
     private DoctorRepository doctorRepository;
 
+
     public List<ARVRegimenDTO> getAllRegimens() {
         return arvRegimenRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    //
+
+    public List<ARVRegimenDTO> getByCustomerId(Long customerId) {
+        return arvRegimenRepository.findByCustomerCustomerID(customerId)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+//
 
     public ARVRegimenDTO getById(Long id) {
         return arvRegimenRepository.findById(id)
@@ -114,3 +125,4 @@ public class ARVRegimenService {
         return dto;
     }
 }
+

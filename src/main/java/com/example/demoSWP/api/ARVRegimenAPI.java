@@ -27,6 +27,16 @@ public class ARVRegimenAPI {
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<ARVRegimenDTO>> getByCustomerId(@PathVariable Long customerId) {
+        List<ARVRegimenDTO> list = arvRegimenService.getByCustomerId(customerId);
+        if (list == null || list.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(list);
+    }
+
+
     @PostMapping
     public ResponseEntity<ARVRegimenDTO> create(@RequestBody ARVRegimenDTO dto) {
         System.out.println("🔥 Nhận được request ARV:");
