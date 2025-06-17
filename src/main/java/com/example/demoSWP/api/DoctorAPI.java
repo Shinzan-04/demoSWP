@@ -77,5 +77,11 @@ public class DoctorAPI {
         return ResponseEntity.ok(doctorsWithAvatar);
     }
 
+    @PutMapping("/doctor/{id}/max-slot")
+    public ResponseEntity<Void> updateMaxSlot(@PathVariable Long id, @RequestParam int max) {
+        doctorService.updateMaxRegistrationsPerSlot(id, max);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

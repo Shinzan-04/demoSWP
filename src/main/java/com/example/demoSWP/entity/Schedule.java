@@ -22,11 +22,13 @@ public class Schedule {
     @Column(nullable = false)
     private String title; // Ví dụ: "Khám bệnh (Sáng)"
 
-    @Column(nullable = false)
-    private LocalDateTime startTime;
+    private LocalDate date;
 
     @Column(nullable = false)
-    private LocalDateTime endTime;
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
 
     private String room; // Phòng khám (nhập từ input)
 
@@ -36,5 +38,9 @@ public class Schedule {
     @JoinColumn(name = "doctor_id", nullable = false)
     @JsonBackReference
     private Doctor doctor;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    private List<Slot> slots;
 
 }

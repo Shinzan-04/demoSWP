@@ -21,7 +21,7 @@ import java.util.Date; // For appointmentDate
 @AllArgsConstructor // Lombok annotation to generate a constructor with all fields
 public class RegistrationRequest {
 
-    private Long registrationID;
+    private Long registrationId;
     private Long doctorId;
     // Customer Information from the form
     private String fullName;
@@ -50,11 +50,11 @@ public class RegistrationRequest {
     @NotNull(message = "Ngày khám không được để trống")
     private Date appointmentDate; // Ngày khám
 
-    @NotBlank(message = "Buổi khám không được để trống")
-    private String session; // Buổi khám: Sáng/Chiều/Tối
 
     private String symptom; // Triệu chứng mô tả (có thể để trống)
 
     private String notes; // Thêm ghi chú (có thể để trống)
     private VisitType visitType;
+
+    private Long slotId;
 }
