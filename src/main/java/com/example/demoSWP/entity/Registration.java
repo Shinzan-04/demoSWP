@@ -31,6 +31,7 @@ public class Registration {
     private String phone;
     private String address;
     private Gender gender;
+
     private LocalDate dateOfBirth;
 
     @ManyToOne // Defines a many-to-one relationship with the Doctor entity
