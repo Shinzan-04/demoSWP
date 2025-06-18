@@ -20,11 +20,21 @@ public class TestResultAPI {
         return testResultService.getAll();
     }
 
+    @GetMapping("/doctor/{doctorId}")
+    public List<TestResultDTO> getByDoctorId(@PathVariable Long doctorId) {
+        return testResultService.getByDoctorId(doctorId);
+    }
+
     @GetMapping("/{id}")
     public TestResultDTO getById(@PathVariable Long id) {
         return testResultService.getById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy kết quả với id: " + id));
     }
+    @GetMapping("/me")
+    public List<TestResultDTO> getMyTestResults() {
+        return testResultService.getByCurrentCustomer();
+    }
+
 
     @PostMapping
     public TestResultDTO create(@RequestBody TestResultDTO dto) {
