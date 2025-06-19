@@ -1,16 +1,16 @@
 package com.example.demoSWP.service;
 
-import com.example.demoSWP.dto.AccountResponse;
-import com.example.demoSWP.dto.EmailDetail;
-import com.example.demoSWP.dto.LoginRequest;
+import com.example.demoSWP.dto.*;
 import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.entity.Customer;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.enums.Role;
+import com.example.demoSWP.exception.RegistrationNotFoundException;
 import com.example.demoSWP.exception.exceptions.AuthenticationException;
 import com.example.demoSWP.repository.AuthenticationRepository;
 import com.example.demoSWP.repository.CustomerRepository;
 import com.example.demoSWP.repository.DoctorRepository;
+import javassist.NotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -75,7 +75,7 @@ public class AuthenticationService implements UserDetailsService {
             }
         }
         EmailDetail emailDetail = new EmailDetail();
-        emailDetail.setRecipient(account.email);
+        emailDetail.setReceiver(newAccount);
         emailDetail.setSubject("Welcome to my system");
         emailService.sendEmail(emailDetail);
         return newAccount;
@@ -138,4 +138,32 @@ public class AuthenticationService implements UserDetailsService {
         }
     }
 
+    //Forget-Password
+    public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest){
+        Account account = authenticationRepository.findAccountByEmail(forgotPasswordRequest.getEmail());
+        if (account == null) {
+            throw new RegistrationNotFoundException("Not Found");
+        } else {
+            EmailDetail emailDetail = new EmailDetail();
+            emailDetail.setReceiver(account);
+            emailDetail.setLink("http://localhost:8080/login/?token=" + tokenService.generateToken(account));
+            emailDetail.setSubject("Đặt lại mật khẩu");
+            emailDetail.setMessage("Bạn đã yêu cầu đặt lại mật khẩu.");
+            emailDetail.setSubMessage("Nhấn vào nút bên dưới để tiến hành.");
+            emailDetail.setButton("Đặt lại mật khẩu");
+            emailDetail.setFooterText("Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email.");
+            emailDetail.setHeaderNote("Yêu cầu khôi phục mật khẩu");
+            emailDetail.setTemplate("emailtemplate01"); // dùng đúng template
+            emailService.sendEmail(emailDetail);
+        }
+    }
+    public Account getCurrenAccount(){
+        Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return authenticationRepository.findAccountByEmail(account.getEmail());
+    }
+    public void resetPassword (ResetPasswordRequest resetPasswordRequest){
+        Account account = getCurrenAccount();
+        account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+        authenticationRepository.save(account);
+    }
 }

@@ -22,8 +22,14 @@ public class EmailService {
     public void sendEmail(EmailDetail emailDetail) {
         try {
             Context context = new Context();
-            context.setVariable("name", "Shinz");
-            String html = templateEngine.process("emailtemplate", context);
+            context.setVariable("name", emailDetail.getReceiver().getFullName());
+            context.setVariable("message", emailDetail.getMessage());
+            context.setVariable("subMessage", emailDetail.getSubMessage());
+            context.setVariable("Link", emailDetail.getLink());
+            context.setVariable("button", emailDetail.getButton());
+            context.setVariable("footerText", emailDetail.getFooterText());
+            context.setVariable("headerNote", emailDetail.getHeaderNote());
+            String html = templateEngine.process("emailtemplate01", context);
 
             // Creating a simple mail message
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -31,7 +37,7 @@ public class EmailService {
 
             // Setting up necessary details
             mimeMessageHelper.setFrom("admin@gmail.com");
-            mimeMessageHelper.setTo(emailDetail.getRecipient());
+            mimeMessageHelper.setTo(emailDetail.getReceiver().getEmail());
             mimeMessageHelper.setText(html, true);
             mimeMessageHelper.setSubject(emailDetail.getSubject());
             javaMailSender.send(mimeMessage);

@@ -50,7 +50,8 @@ public class Filter extends OncePerRequestFilter {
             "/api/posts/**",
             "/uploads/**",
             "/api/slots/available-slots",
-            "/api/slots/available-dates"
+            "/api/slots/available-dates",
+            "/api/forgot-pasword"
 
     );
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
