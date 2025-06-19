@@ -58,6 +58,8 @@ public class Registration {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VisitType visitType; // REGISTRATION, APPOINTMENT
+    @Column(nullable = false)
+    private boolean isCompleted = false;
 
 
 }

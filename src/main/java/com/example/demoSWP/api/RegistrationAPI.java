@@ -51,6 +51,12 @@ public class RegistrationAPI {
         registrationService.deleteRegistration(id);
         return ResponseEntity.noContent().build();
     }
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<Void> completeRegistration(@PathVariable Long id) {
+        registrationService.markAsCompleted(id);
+        return ResponseEntity.ok().build();
+    }
+
     // ... other API methods if any
 }
     

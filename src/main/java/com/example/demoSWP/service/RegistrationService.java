@@ -80,6 +80,7 @@ public class RegistrationService {
 
     public List<RegistrationRequest> getAllRegistrations() {
         return registrationRepository.findAll().stream()
+                .filter(r -> !r.isCompleted())
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -126,4 +127,11 @@ public class RegistrationService {
         }
         registrationRepository.deleteById(id);
     }
+    public void markAsCompleted(Long id) {
+        Registration registration = registrationRepository.findById(id)
+                .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
+        registration.setCompleted(true); // ✅ Chính xác
+        registrationRepository.save(registration);
+    }
+
 }
