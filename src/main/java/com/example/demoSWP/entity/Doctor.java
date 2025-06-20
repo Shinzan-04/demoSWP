@@ -60,5 +60,6 @@ public class Doctor {
 
     private int maxRegistrationsPerSlot = 3; // VD: 3 người/slot
 
-
+    @OneToMany(mappedBy = "doctor")
+    List<Rating> ratings;
 }
