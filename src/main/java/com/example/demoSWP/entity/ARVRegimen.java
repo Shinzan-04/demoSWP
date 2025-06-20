@@ -20,7 +20,7 @@ public class ARVRegimen {
     private Doctor doctor;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_id",nullable = true)
     private Customer customer;
 
     private LocalDate createDate;

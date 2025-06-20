@@ -20,4 +20,5 @@ public class ARVRegimenDTO {
     private int duration;
     private LocalDate endDate;
     private String medicationSchedule;
+    private String email;
 }

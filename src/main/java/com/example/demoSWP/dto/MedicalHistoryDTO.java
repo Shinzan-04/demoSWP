@@ -8,13 +8,15 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class MedicalHistoryDTO {
-    private Long medicalHistoryId; // Unique ID for the medical history record
-    private Long customerID; // ID of the customer
-    private LocalDate visitDate; // Date of the visit
-    private Long doctorId; // ID of the doctor
-    private String reason; // Reason for the visit
-    private String diagnosis; // Diagnosis made by the doctor
-    private String treatment; // Treatment prescribed
-    private String prescription; // Prescription details
-    private String notes; // Additional notes
+    private Long medicalHistoryId;       // ID của bản ghi lịch sử
+    private Long customerID;             // ID bệnh nhân
+    private LocalDate visitDate;         // Ngày khám
+    private Long doctorId;               // ID bác sĩ
+    private String doctorName;           // Tên bác sĩ (để hiển thị)
+    private String diseaseName;          // Tên bệnh (BỊ THIẾU)
+    private String reason;               // Lý do khám
+    private String diagnosis;            // Chẩn đoán
+    private String treatment;            // Phác đồ điều trị
+    private String prescription;         // Đơn thuốc
+    private String notes;                // Ghi chú thêm
 }

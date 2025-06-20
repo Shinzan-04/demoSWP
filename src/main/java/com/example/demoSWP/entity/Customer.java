@@ -19,7 +19,7 @@ public class Customer {
 
 
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING) // Lưu trữ enum dưới dạng chuỗi
     private Gender gender;
 

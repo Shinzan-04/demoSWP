@@ -1,15 +1,16 @@
 package com.example.demoSWP.service;
 
+import com.example.demoSWP.dto.ARVAndHistoryDTO;
 import com.example.demoSWP.dto.ARVRegimenDTO;
-import com.example.demoSWP.entity.ARVRegimen;
-import com.example.demoSWP.entity.Customer;
-import com.example.demoSWP.entity.Doctor;
-import com.example.demoSWP.repository.ARVRegimenRepository;
-import com.example.demoSWP.repository.CustomerRepository;
-import com.example.demoSWP.repository.DoctorRepository;
+import com.example.demoSWP.entity.*;
+import com.example.demoSWP.enums.Gender;
+import com.example.demoSWP.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +26,9 @@ public class ARVRegimenService {
 
     @Autowired
     private DoctorRepository doctorRepository;
+
+    @Autowired
+    private MedicalHistoryRepository medicalHistoryRepository;
 
     public List<ARVRegimenDTO> getAllRegimens() {
         return arvRegimenRepository.findAll().stream()
@@ -45,7 +49,6 @@ public class ARVRegimenService {
             regimen = arvRegimenRepository.findById(dto.getArvRegimenId()).orElse(new ARVRegimen());
         }
 
-        // Gán thông tin cơ bản
         regimen.setRegimenName(dto.getRegimenName());
         regimen.setRegimenCode(dto.getRegimenCode());
         regimen.setDescription(dto.getDescription());
@@ -53,31 +56,25 @@ public class ARVRegimenService {
         regimen.setDuration(dto.getDuration());
         regimen.setMedicationSchedule(dto.getMedicationSchedule());
 
-        // Tính ngày kết thúc
         if (dto.getCreateDate() != null && dto.getDuration() > 0) {
             regimen.setEndDate(dto.getCreateDate().plusMonths(dto.getDuration()));
         }
 
-        // Gán bác sĩ
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
         regimen.setDoctor(doctor);
 
-        // Gán bệnh nhân
         Customer customer = null;
-
         if (dto.getCustomerId() != null) {
-            customer = customerRepository.findById(dto.getCustomerId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với ID " + dto.getCustomerId()));
-        } else if (dto.getCustomerName() != null && !dto.getCustomerName().isBlank()) {
-            customer = customerRepository.findByFullName(dto.getCustomerName())
-                    .orElseGet(() -> {
-                        Customer newCus = new Customer();
-                        newCus.setFullName(dto.getCustomerName());
-                        return customerRepository.save(newCus);
-                    });
-        } else {
-            throw new RuntimeException("Thiếu thông tin bệnh nhân");
+            customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        } else if (dto.getEmail() != null) {
+            customer = customerRepository.findByEmail(dto.getEmail()).orElse(null);
+            if (customer == null) {
+                customer = new Customer();
+                customer.setEmail(dto.getEmail());
+                customer.setFullName(dto.getCustomerName());
+                customerRepository.save(customer);
+            }
         }
 
         regimen.setCustomer(customer);
@@ -87,6 +84,12 @@ public class ARVRegimenService {
     }
 
     public void delete(Long id) {
+        Optional<ARVRegimen> optional = arvRegimenRepository.findById(id);
+        if (optional.isPresent()) {
+            ARVRegimen regimen = optional.get();
+            List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(regimen.getArvRegimenId());
+            medicalHistoryRepository.deleteAll(histories);
+        }
         arvRegimenRepository.deleteById(id);
     }
 
@@ -112,5 +115,112 @@ public class ARVRegimenService {
         }
 
         return dto;
+    }
+
+    @Transactional
+    public void saveARVWithMedicalHistory(ARVAndHistoryDTO dto) {
+        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
+
+        Customer customer = null;
+        if (dto.getCustomerId() != null) {
+            customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        } else if (dto.getEmail() != null) {
+            customer = customerRepository.findByEmail(dto.getEmail()).orElse(null);
+            if (customer == null) {
+                customer = new Customer();
+                customer.setEmail(dto.getEmail());
+                customer.setFullName(dto.getCustomerName());
+                customerRepository.save(customer);
+            }
+        }
+
+        LocalDate createDate = dto.getCreateDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        ARVRegimen arv = new ARVRegimen();
+        arv.setDoctor(doctor);
+        arv.setCustomer(customer);
+        arv.setRegimenName(dto.getRegimenName());
+        arv.setRegimenCode(dto.getRegimenCode());
+        arv.setCreateDate(createDate);
+        arv.setDuration(dto.getDuration());
+        arv.setDescription(dto.getDescription());
+        arv.setMedicationSchedule(dto.getMedicationSchedule());
+
+        if (dto.getDuration() > 0) {
+            arv.setEndDate(createDate.plusMonths(dto.getDuration()));
+        }
+
+        ARVRegimen savedArv = arvRegimenRepository.save(arv);
+
+        MedicalHistory history = new MedicalHistory();
+        history.setDoctor(doctor);
+        history.setCustomer(customer);
+        history.setArvRegimen(savedArv);
+        history.setVisitDate(createDate);
+        history.setDiseaseName(dto.getDiseaseName());
+        history.setDiagnosis(dto.getDiagnosis());
+        history.setPrescription(dto.getPrescription());
+        history.setNotes(dto.getDescription());
+
+        medicalHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public void updateARVWithMedicalHistory(ARVAndHistoryDTO dto) {
+        ARVRegimen arv = arvRegimenRepository.findById(dto.getArvRegimenId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy ARV Regimen"));
+
+        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
+
+        Customer customer = null;
+        if (dto.getCustomerId() != null) {
+            customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        } else if (dto.getEmail() != null) {
+            customer = customerRepository.findByEmail(dto.getEmail()).orElse(null);
+            if (customer == null) {
+                customer = new Customer();
+                customer.setEmail(dto.getEmail());
+                customer.setFullName(dto.getCustomerName());
+                customerRepository.save(customer);
+            }
+        }
+
+        LocalDate createDate = dto.getCreateDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        arv.setDoctor(doctor);
+        arv.setCustomer(customer);
+        arv.setRegimenName(dto.getRegimenName());
+        arv.setRegimenCode(dto.getRegimenCode());
+        arv.setCreateDate(createDate);
+        arv.setDuration(dto.getDuration());
+        arv.setDescription(dto.getDescription());
+        arv.setMedicationSchedule(dto.getMedicationSchedule());
+
+        if (dto.getDuration() > 0) {
+            arv.setEndDate(createDate.plusMonths(dto.getDuration()));
+        }
+
+        ARVRegimen savedArv = arvRegimenRepository.save(arv);
+
+        List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(savedArv.getArvRegimenId());
+        MedicalHistory history;
+        if (!histories.isEmpty()) {
+            history = histories.get(0);
+        } else {
+            history = new MedicalHistory();
+            history.setArvRegimen(savedArv);
+        }
+
+        history.setDoctor(doctor);
+        history.setCustomer(customer);
+        history.setVisitDate(createDate);
+        history.setDiseaseName(dto.getDiseaseName());
+        history.setDiagnosis(dto.getDiagnosis());
+        history.setPrescription(dto.getPrescription());
+        history.setNotes(dto.getDescription());
+
+        medicalHistoryRepository.save(history);
     }
 }
