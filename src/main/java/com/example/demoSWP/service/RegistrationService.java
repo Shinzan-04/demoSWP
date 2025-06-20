@@ -2,12 +2,16 @@ package com.example.demoSWP.service;
 
 import com.example.demoSWP.dto.AppointmentRequest;
 import com.example.demoSWP.dto.RegistrationRequest;
+import com.example.demoSWP.dto.RegistrationResponse;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.entity.Registration;
+import com.example.demoSWP.entity.Slot;
+import com.example.demoSWP.enums.Gender;
 import com.example.demoSWP.enums.VisitType;
 import com.example.demoSWP.exception.RegistrationNotFoundException;
 import com.example.demoSWP.repository.RegistrationRepository;
 import com.example.demoSWP.repository.DoctorRepository;
+import com.example.demoSWP.repository.SlotRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,64 +30,56 @@ public class RegistrationService {
     private DoctorRepository doctorRepository;
 
     @Autowired
+    private SlotRepository slotRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
-    public Registration saveRegistrationFromRequest(Object request) {
+    public Registration saveRegistrationFromRequest(RegistrationRequest request) {
+        Slot slot = slotRepository.findById(request.getSlotId())
+                .orElseThrow(() -> new RuntimeException("Slot không tồn tại"));
+
+        Doctor doctor = slot.getSchedule().getDoctor();
+
+        long currentCount = registrationRepository.countBySlot(slot);
+        if (currentCount >= doctor.getMaxRegistrationsPerSlot()) {
+            throw new RuntimeException("Slot đã đầy. Vui lòng chọn khung giờ khác.");
+        }
+
         Registration registration = new Registration();
-        Doctor doctor;
+        registration.setEmail(request.getEmail());
+        registration.setPhone(request.getPhone());
+        registration.setSpecialization(request.getSpecialization());
+        registration.setAppointmentDate(request.getAppointmentDate());
+        registration.setSlot(slot);
+        registration.setDoctor(doctor);
+        registration.setMode(request.getMode());
+        registration.setNotes(request.getNotes());
+        registration.setSymptom(request.getSymptom());
+        registration.setVisitType(request.getVisitType());
+        registration.setGender(request.getGender());
 
-        if (request instanceof RegistrationRequest reg) {
-            doctor = doctorRepository.findById(reg.getDoctorId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + reg.getDoctorId()));
-
-            registration.setFullName(reg.getFullName());
-            registration.setEmail(reg.getEmail());
-            registration.setPhone(reg.getPhone());
-            registration.setGender(reg.getGender());
-            registration.setDateOfBirth(reg.getDateOfBirth());
-            registration.setAddress(reg.getAddress());
-            registration.setSpecialization(reg.getSpecialization());
-            registration.setAppointmentDate(reg.getAppointmentDate());
-            registration.setSession(reg.getSession());
-            registration.setSymptom(reg.getSymptom());
-            registration.setNotes(reg.getNotes());
-            registration.setMode(reg.getMode()); // ✅ FE phải gửi
-            registration.setVisitType(VisitType.REGISTRATION);
-            registration.setDoctor(doctor);
-
-        } else if (request instanceof AppointmentRequest app) {
-            doctor = doctorRepository.findById(app.getDoctorId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + app.getDoctorId()));
-
-            registration = new Registration();
-
-            registration.setEmail(app.getEmail());
-            registration.setPhone(app.getPhone());
-            registration.setSpecialization(app.getSpecialization());
-            registration.setAppointmentDate(app.getAppointmentDate());
-            registration.setSession(app.getSession());
-            registration.setSymptom(app.getSymptom());
-            registration.setNotes(app.getNotes());
-
-            registration.setMode("Online");
-
-            registration.setVisitType(VisitType.APPOINTMENT);
-            registration.setDoctor(doctor);
+        // ✅ Nếu là REGISTRATION thì yêu cầu thông tin thêm
+        if (request.getVisitType() == VisitType.REGISTRATION) {
+            registration.setFullName(request.getFullName());
 
 
-        } else {
-            throw new IllegalArgumentException("Loại dữ liệu không hợp lệ");
+            registration.setDateOfBirth(request.getDateOfBirth());
+            registration.setAddress(request.getAddress());
         }
 
         return registrationRepository.save(registration);
     }
 
-    public List<RegistrationRequest> getAllRegistrations() {
+
+
+
+    public List<RegistrationResponse> getAllRegistrations() {
         return registrationRepository.findAll().stream()
-                .filter(r -> !r.isCompleted())
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .toList();
     }
+
     private RegistrationRequest mapToDTO(Registration registration) {
         RegistrationRequest dto = modelMapper.map(registration, RegistrationRequest.class);
         if (registration.getDoctor() != null) {
@@ -111,7 +107,6 @@ public class RegistrationService {
         existing.setAddress(reg.getAddress());
         existing.setSpecialization(reg.getSpecialization());
         existing.setAppointmentDate(reg.getAppointmentDate());
-        existing.setSession(reg.getSession());
         existing.setSymptom(reg.getSymptom());
         existing.setNotes(reg.getNotes());
         existing.setMode(reg.getMode());
@@ -127,11 +122,30 @@ public class RegistrationService {
         }
         registrationRepository.deleteById(id);
     }
-    public void markAsCompleted(Long id) {
-        Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
-        registration.setCompleted(true); // ✅ Chính xác
-        registrationRepository.save(registration);
+    public RegistrationResponse convertToDTO(Registration reg) {
+        RegistrationResponse dto = new RegistrationResponse();
+        dto.setFullName(reg.getFullName());
+        dto.setEmail(reg.getEmail());
+        dto.setPhone(reg.getPhone());
+        dto.setSpecialization(reg.getSpecialization());
+        dto.setSymptom(reg.getSymptom());
+        dto.setMode(reg.getMode());
+        dto.setDateOfBirth(reg.getDateOfBirth());
+        dto.setAddress(reg.getAddress());
+        dto.setNotes(reg.getNotes());
+        dto.setGender(reg.getGender().name());
+
+        if (reg.getDoctor() != null) {
+            dto.setDoctorName(reg.getDoctor().getFullName());
+        }
+        if (reg.getSlot() != null) {
+            dto.setSlotId(reg.getSlot().getSlotId());
+            dto.setStartTime(reg.getSlot().getStartTime());
+            dto.setEndTime(reg.getSlot().getEndTime());
+            dto.setAppointmentDate(reg.getSlot().getSchedule().getDate());
+        }
+
+        return dto;
     }
 
 }

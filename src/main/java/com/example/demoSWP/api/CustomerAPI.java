@@ -1,6 +1,7 @@
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.CustomerDTO;
+import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,10 +31,18 @@ public class CustomerAPI {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
     }
 
+    @GetMapping("/by-email")
+    public CustomerDTO getCustomerByEmail(@RequestParam String email) {
+        return customerService.getByEmail(email);
+    }
+
     @GetMapping("/me")
     public CustomerDTO getMyProfile() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return customerService.getByEmail(email);
+        Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (account == null || account.getCustomer() == null) {
+            throw new RuntimeException("Không tìm thấy hồ sơ khách hàng.");
+        }
+        return CustomerDTO.formEntity(account.getCustomer());
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -43,9 +52,5 @@ public class CustomerAPI {
             @RequestPart(value = "avatar", required = false) MultipartFile avatarFile
     ) throws IOException {
         return customerService.updateCustomerWithAvatar(id, customerDto, avatarFile);
-    }
-    @GetMapping("/by-email")
-    public CustomerDTO getCustomerByEmail(@RequestParam String email) {
-        return customerService.getByEmail(email);
     }
 }

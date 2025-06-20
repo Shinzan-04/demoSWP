@@ -118,5 +118,11 @@ public class DoctorService {
                 .collect(Collectors.toList());
     }
 
+    public void updateMaxRegistrationsPerSlot(Long doctorId, int max) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + doctorId));
+        doctor.setMaxRegistrationsPerSlot(max);
+        doctorRepository.save(doctor);
+    }
 
 }

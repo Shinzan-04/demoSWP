@@ -58,4 +58,7 @@ public class Doctor {
     @JsonIgnore
     private List<TestResult> testResults;
 
+    private int maxRegistrationsPerSlot = 3; // VD: 3 người/slot
+
+
 }

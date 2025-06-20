@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import java.util.Date; // Using java.util.Date as per previous Registration.java, but LocalDate is often preferred for dates without time
 
+
 @Entity // Marks this class as a JPA entity
 @Table(name = "registrations") // Specifies the table name in the database
 @Getter // Lombok annotation to generate getters for all fields
@@ -41,9 +42,6 @@ public class Registration {
     @Column(name = "appointment_date", nullable = false) // Maps the field to a column and makes it non-nullable
     private Date appointmentDate; // Ngày khám theo lịch khách chọn
 
-    @Column(name = "session_time", nullable = false) // Maps the field to a column and makes it non-nullable
-    private String session; // Buổi khám: Sáng/Chiều/Tối
-
     @Column(name = "symptom", columnDefinition = "TEXT") // Maps the field to a column, using TEXT for potentially long descriptions
     private String symptom; // Triệu chứng mô tả
 
@@ -61,5 +59,8 @@ public class Registration {
     @Column(nullable = false)
     private boolean isCompleted = false;
 
+    @ManyToOne
+    @JoinColumn(name = "slot_id")
+    private Slot slot;
 
 }

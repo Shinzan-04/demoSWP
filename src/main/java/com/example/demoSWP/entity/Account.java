@@ -40,6 +40,9 @@ public class Account implements UserDetails {
     @OneToOne(mappedBy = "account")
     @JsonIgnore
     private Doctor doctor;
+    @OneToOne(mappedBy = "account")
+    @JsonIgnore
+    private Customer customer;
 
 
     @Override

@@ -4,26 +4,21 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter
 @Setter
-public class ScheduleDTO {
-    private Long scheduleId;
-    private String title;
-    private LocalDate date;
+public class SlotDTO {
 
+    private Long slotId;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
-    private String room;
-    private String patientName;
-    private Long doctorId;
-    private List<SlotDTO> slots;
+    private boolean isAvailable;
+    private Long scheduleId;
+    private String date;
+
 }
