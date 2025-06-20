@@ -15,6 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class AppointmentRequest {
 
+    private Long registrationId;
     private Long doctorId;
     @NotBlank(message = "Email khách hàng không được để trống")
     @Email(message = "Email khách hàng không hợp lệ")
@@ -29,8 +30,6 @@ public class AppointmentRequest {
     @NotNull(message = "Ngày hẹn không được để trống")
     private Date appointmentDate;
 
-    @NotBlank(message = "Buổi khám không được để trống")
-    private String session;
 
     @NotBlank(message = "Online/Offline không được để trống")
     private String mode;
@@ -38,4 +37,6 @@ public class AppointmentRequest {
     private String notes;
     private String symptom; // Triệu chứng mô tả (có thể để trống)
     private final VisitType visitType = VisitType.APPOINTMENT;
+
+    private Long slotId;
 }

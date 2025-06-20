@@ -18,6 +18,7 @@ public class DoctorDTO {
     private String avatarUrl;
 
 
+
     public static DoctorDTO fromEntity(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
         dto.setDoctorId(doctor.getDoctorId());

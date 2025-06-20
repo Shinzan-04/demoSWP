@@ -1,21 +1,30 @@
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.ScheduleDTO;
+import com.example.demoSWP.dto.SlotDTO;
 import com.example.demoSWP.service.ScheduleService;
+import com.example.demoSWP.service.SlotService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/schedules")
+@SecurityRequirement(name = "api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ScheduleAPI {
 
     @Autowired
     private ScheduleService scheduleService;
+
+    @Autowired
+    private SlotService slotService;
 
     @GetMapping
     public List<ScheduleDTO> getAll() {
@@ -48,4 +57,11 @@ public class ScheduleAPI {
         scheduleService.deleteSchedule(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/api/schedules/clone-last-week")
+    public ResponseEntity<?> manualClone() {
+        scheduleService.copyLastWeekSchedules();
+        return ResponseEntity.ok("Đã sao chép lịch tuần trước.");
+    }
+
 }

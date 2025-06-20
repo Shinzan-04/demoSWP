@@ -2,6 +2,7 @@
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.RegistrationRequest;
+import com.example.demoSWP.dto.RegistrationResponse;
 import com.example.demoSWP.entity.Registration;
 import com.example.demoSWP.exception.RegistrationNotFoundException;
 import com.example.demoSWP.service.RegistrationService;
@@ -26,23 +27,26 @@ public class RegistrationAPI {
     }
 
     @PostMapping
-    public ResponseEntity<Registration> createRegistration(@RequestBody RegistrationRequest request) { // Changed parameter type
-        Registration createdRegistration = registrationService.saveRegistrationFromRequest(request); // Calling the correct method
-        return new ResponseEntity<>(createdRegistration, HttpStatus.CREATED);
+    public ResponseEntity<RegistrationResponse> createRegistration(@RequestBody RegistrationRequest request) {
+        Registration created = registrationService.saveRegistrationFromRequest(request);
+        RegistrationResponse response = registrationService.convertToDTO(created);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     // ✅ Lấy tất cả đăng ký (dạng DTO)
     @GetMapping
-    public ResponseEntity<List<RegistrationRequest>> getAllRegistrations() {
-        List<RegistrationRequest> dtos = registrationService.getAllRegistrations();
+    public ResponseEntity<List<RegistrationResponse>> getAllRegistrations() {
+        List<RegistrationResponse> dtos = registrationService.getAllRegistrations();
         return ResponseEntity.ok(dtos);
     }
 
 
+
+
     // ✅ Lấy một đăng ký theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<Registration> getRegistrationById(@PathVariable Long id) {
+    public ResponseEntity<RegistrationResponse> getRegistrationById(@PathVariable Long id) {
         return registrationService.getRegistrationById(id)
-                .map(ResponseEntity::ok)
+                .map(reg -> ResponseEntity.ok(registrationService.convertToDTO(reg)))
                 .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
     }
     // ✅ Xoá đăng ký
@@ -51,6 +55,13 @@ public class RegistrationAPI {
         registrationService.deleteRegistration(id);
         return ResponseEntity.noContent().build();
     }
+    @PostMapping("/doctor-register")
+    public ResponseEntity<RegistrationResponse> registerByDoctor(@RequestBody RegistrationRequest request) {
+        Registration reg = registrationService.saveRegistrationFromRequest(request);
+        RegistrationResponse response = registrationService.convertToDTO(reg);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     // ... other API methods if any
 }
     

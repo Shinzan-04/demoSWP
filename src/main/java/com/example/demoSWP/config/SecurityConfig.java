@@ -70,6 +70,10 @@ public class SecurityConfig {
                              //   .requestMatchers("/api/doctors/**").authenticated() // ✅ yêu cầu token cho /api/doctors/{id}, PUT, etc.
                                 .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
+                                .requestMatchers(HttpMethod.GET, "/api/slots/available-slots").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/slots/available-dates").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/forgot-pasword").permitAll()
+
                                 .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
 
 
