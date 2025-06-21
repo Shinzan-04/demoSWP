@@ -115,6 +115,7 @@ public class MedicalHistoryService {
 
         if (entity.getCustomer() != null) {
             dto.setCustomerID(entity.getCustomer().getCustomerID());
+            dto.setCustomerName(entity.getCustomer().getFullName()); // <-- Thêm dòng này
         }
 
         if (entity.getDoctor() != null) {

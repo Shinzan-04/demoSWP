@@ -19,4 +19,6 @@ public class MedicalHistoryDTO {
     private String treatment;            // Phác đồ điều trị
     private String prescription;         // Đơn thuốc
     private String notes;                // Ghi chú thêm
+    private String customerName; // bổ sung vào DTO
+
 }
