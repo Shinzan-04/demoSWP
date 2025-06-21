@@ -10,5 +10,4 @@ public interface AuthenticationRepository extends JpaRepository<Account, Long> {
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
 
-
 }

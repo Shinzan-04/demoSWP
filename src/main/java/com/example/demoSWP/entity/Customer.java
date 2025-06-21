@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -37,4 +38,8 @@ public class Customer {
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    List<Rating> ratings;
+
 }
