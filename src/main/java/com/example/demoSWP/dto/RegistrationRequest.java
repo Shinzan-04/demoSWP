@@ -50,6 +50,7 @@ public class RegistrationRequest {
     @NotNull(message = "Ngày khám không được để trống")
     private Date appointmentDate; // Ngày khám
 
+    private boolean status;
 
     private String symptom; // Triệu chứng mô tả (có thể để trống)
 
