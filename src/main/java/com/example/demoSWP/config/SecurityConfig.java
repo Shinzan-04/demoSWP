@@ -60,8 +60,8 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/v2/api-docs/**",
                                         "/swagger-resources/**",
-                                        "/webjars/**",
-                                        "/api/doctors"
+                                        "/webjars/**"
+
 
                                         ).permitAll() // Cho phép các endpoint này công khai
                                 // RẤT QUAN TRỌNG: Cho phép các yêu cầu OPTIONS cho tất cả các đường dẫn.
@@ -72,11 +72,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/slots/available-slots").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/slots/available-dates").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/forgot-pasword").permitAll()
-
-                                .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
-
-
-
+                                .requestMatchers(HttpMethod.GET, "/api/doctors", "/api/doctors/**").permitAll()
 
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực

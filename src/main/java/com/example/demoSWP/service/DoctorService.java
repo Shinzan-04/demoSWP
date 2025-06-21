@@ -1,11 +1,13 @@
 package com.example.demoSWP.service;
 
 import com.example.demoSWP.dto.DoctorDTO;
+import com.example.demoSWP.dto.RatingDTO;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.repository.DoctorRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -24,6 +26,7 @@ public class DoctorService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Transactional(readOnly = true)
     public List<DoctorDTO> getAll() {
         return doctorRepository.findAll().stream()
                 .map(this::toDTO)
@@ -56,9 +59,36 @@ public class DoctorService {
         doctorRepository.deleteById(id);
     }
 
-    private DoctorDTO toDTO(Doctor entity) {
-        return modelMapper.map(entity, DoctorDTO.class);
+    private DoctorDTO toDTO(Doctor doctor) {
+        DoctorDTO dto = new DoctorDTO();
+        dto.setDoctorId(doctor.getDoctorId());
+        dto.setFullName(doctor.getFullName());
+        dto.setPhone(doctor.getPhone());
+        dto.setSpecialization(doctor.getSpecialization());
+        dto.setEmail(doctor.getEmail());
+        dto.setWorkExperienceYears(doctor.getWorkExperienceYears());
+        dto.setDescription(doctor.getDescription());
+        dto.setAvatarUrl(doctor.getAvatarUrl());
+
+        // Tính trung bình và convert ratings nếu còn trong session
+        if (doctor.getRatings() != null && !doctor.getRatings().isEmpty()) {
+            double avg = doctor.getRatings().stream()
+                    .mapToInt(r -> r.getRating())
+                    .average().orElse(0.0);
+            dto.setAverageRating(Math.round(avg * 10.0) / 10.0);
+            dto.setRatings(
+                    doctor.getRatings().stream()
+                            .map(RatingDTO::fromEntity)
+                            .toList()
+            );
+        } else {
+            dto.setAverageRating(0.0);
+            dto.setRatings(List.of());
+        }
+
+        return dto;
     }
+
 
     private Doctor toEntity(DoctorDTO dto) {
         return modelMapper.map(dto, Doctor.class);

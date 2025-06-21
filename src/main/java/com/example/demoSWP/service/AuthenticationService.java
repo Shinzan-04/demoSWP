@@ -67,10 +67,10 @@ public class AuthenticationService implements UserDetailsService {
             } else if (newAccount.getRole() == Role.USER) { // Xử lý role USER
                 Customer customer = new Customer();
                 customer.setAccount(newAccount);
-                customer.setGender(newAccount.getGender());
                 customer.setEmail(newAccount.getEmail());
-                customer.setFullName(newAccount.getFullName()); // Sử dụng getFullName()
                 customer.setPhone(newAccount.getPhone());
+                customer.setGender(newAccount.getGender());
+                customer.setFullName(newAccount.getFullName()); // Sử dụng getFullName()
                 customerRepository.save(customer);
             }
         }
@@ -157,12 +157,13 @@ public class AuthenticationService implements UserDetailsService {
             emailService.sendEmail(emailDetail);
         }
     }
-    public Account getCurrenAccount(){
+    public Account getCurrentAccount(){
         Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return authenticationRepository.findAccountByEmail(account.getEmail());
     }
+
     public void resetPassword (ResetPasswordRequest resetPasswordRequest){
-        Account account = getCurrenAccount();
+        Account account = getCurrentAccount();
         account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
         authenticationRepository.save(account);
     }

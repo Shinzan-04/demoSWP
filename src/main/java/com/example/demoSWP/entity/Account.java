@@ -45,6 +45,8 @@ public class Account implements UserDetails {
     private Customer customer;
 
 
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // ĐÃ SỬA ĐỔI: Trả về một SimpleGrantedAuthority dựa trên vai trò của tài khoản
