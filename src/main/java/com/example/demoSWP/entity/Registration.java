@@ -33,6 +33,7 @@ public class Registration {
     private String address;
     private Gender gender;
     private LocalDate dateOfBirth;
+    private boolean status;
 
     @ManyToOne // Defines a many-to-one relationship with the Doctor entity
     @JoinColumn(name = "doctor_id", nullable = false) // Specifies the foreign key column in the 'registrations' table
