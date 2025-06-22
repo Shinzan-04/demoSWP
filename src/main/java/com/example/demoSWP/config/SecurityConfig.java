@@ -69,10 +69,28 @@ public class SecurityConfig {
                              //   .requestMatchers("/api/doctors/**").authenticated() // ✅ yêu cầu token cho /api/doctors/{id}, PUT, etc.
                                 .requestMatchers("/uploads/**").permitAll() // ✅ không cần đăng nhập
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // THÊM DÒNG NÀY
+<<<<<<< Updated upstream
                                 .requestMatchers(HttpMethod.GET, "/api/slots/available-slots").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/slots/available-dates").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/forgot-pasword").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/doctors", "/api/doctors/**").permitAll()
+=======
+                                .requestMatchers(HttpMethod.PUT, "/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
+                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll() // Ai cũng được xem
+                                .requestMatchers(HttpMethod.POST, "/api/blogposts").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.PUT, "/api/blogposts/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.DELETE, "/api/blogposts/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.GET, "/api/arv-regimens/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.POST, "/api/test-results").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.PUT, "/api/test-results/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.DELETE, "/api/test-results/**").hasRole("DOCTOR")
+                                .requestMatchers(HttpMethod.GET, "/api/registrations").hasRole("DOCTOR")
+
+                                .requestMatchers("/api/customers/by-email").hasRole("DOCTOR")
+
+                                .requestMatchers(HttpMethod.GET, "/api/blogposts/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/test-results").permitAll()
+>>>>>>> Stashed changes
 
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
