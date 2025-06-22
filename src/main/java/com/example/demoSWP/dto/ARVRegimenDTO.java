@@ -21,4 +21,12 @@ public class ARVRegimenDTO {
     private LocalDate endDate;
     private String medicationSchedule;
     private String email;
+    // Medical History (để export Excel đầy đủ)
+    private String diseaseName;
+    private String diagnosis;
+    private String prescription;
+    private String reason;
+    private String treatment;
+    private String notes;
+
 }

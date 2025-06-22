@@ -21,8 +21,11 @@ public class ARVAndHistoryDTO {
     private String medicationSchedule;
     private int duration;
 
-    // Medical History bổ sung
+    // Medical History
     private String diseaseName;
     private String diagnosis;
     private String prescription;
+    private String reason;
+    private String treatment;
+    private String notes;
 }

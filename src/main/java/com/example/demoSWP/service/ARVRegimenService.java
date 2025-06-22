@@ -41,6 +41,12 @@ public class ARVRegimenService {
                 .map(this::convertToDTO)
                 .orElse(null);
     }
+    public List<ARVRegimenDTO> getByCustomerId(Long customerId) {
+        return arvRegimenRepository.findByCustomerCustomerID(customerId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     public ARVRegimenDTO createOrUpdate(ARVRegimenDTO dto) {
         ARVRegimen regimen = new ARVRegimen();
@@ -104,9 +110,11 @@ public class ARVRegimenService {
         dto.setEndDate(entity.getEndDate());
         dto.setMedicationSchedule(entity.getMedicationSchedule());
 
+        // ✅ Thêm đầy đủ thông tin customer
         if (entity.getCustomer() != null) {
             dto.setCustomerId(entity.getCustomer().getCustomerID());
-            dto.setCustomerName(entity.getCustomer().getFullName());
+            dto.setCustomerName(entity.getCustomer().getFullName()); // ✅ dòng này là quan trọng
+            dto.setEmail(entity.getCustomer().getEmail());
         }
 
         if (entity.getDoctor() != null) {
@@ -114,8 +122,21 @@ public class ARVRegimenService {
             dto.setDoctorName(entity.getDoctor().getFullName());
         }
 
+        List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(entity.getArvRegimenId());
+        if (!histories.isEmpty()) {
+            MedicalHistory history = histories.get(0);
+            dto.setDiseaseName(history.getDiseaseName());
+            dto.setDiagnosis(history.getDiagnosis());
+            dto.setPrescription(history.getPrescription());
+            dto.setReason(history.getReason());
+            dto.setTreatment(history.getTreatment());
+            dto.setNotes(history.getNotes());
+        }
+
         return dto;
     }
+
+
 
     @Transactional
     public void saveARVWithMedicalHistory(ARVAndHistoryDTO dto) {
@@ -161,10 +182,13 @@ public class ARVRegimenService {
         history.setDiseaseName(dto.getDiseaseName());
         history.setDiagnosis(dto.getDiagnosis());
         history.setPrescription(dto.getPrescription());
-        history.setNotes(dto.getDescription());
+        history.setReason(dto.getReason());
+        history.setTreatment(dto.getTreatment());
+        history.setNotes(dto.getNotes());
 
         medicalHistoryRepository.save(history);
     }
+
 
     @Transactional
     public void updateARVWithMedicalHistory(ARVAndHistoryDTO dto) {
@@ -219,8 +243,11 @@ public class ARVRegimenService {
         history.setDiseaseName(dto.getDiseaseName());
         history.setDiagnosis(dto.getDiagnosis());
         history.setPrescription(dto.getPrescription());
-        history.setNotes(dto.getDescription());
+        history.setReason(dto.getReason());
+        history.setTreatment(dto.getTreatment());
+        history.setNotes(dto.getNotes());
 
         medicalHistoryRepository.save(history);
     }
+
 }

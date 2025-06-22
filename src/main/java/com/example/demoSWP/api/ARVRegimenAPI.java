@@ -1,5 +1,6 @@
 package com.example.demoSWP.api;
-
+import com.example.demoSWP.entity.Account;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.demoSWP.dto.ARVAndHistoryDTO;
 import com.example.demoSWP.dto.ARVRegimenDTO;
 import com.example.demoSWP.service.ARVRegimenService;
@@ -28,6 +29,20 @@ public class ARVRegimenAPI {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    // ARVRegimenAPI.java
+    @GetMapping("/my-regimens")
+    public ResponseEntity<List<ARVRegimenDTO>> getMyARVRegimens() {
+        Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (account == null || account.getCustomer() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long customerId = account.getCustomer().getCustomerID();
+        List<ARVRegimenDTO> regimens = arvRegimenService.getByCustomerId(customerId);
+        return ResponseEntity.ok(regimens);
+    }
+
+
 
     @PostMapping("/with-history")
     public ResponseEntity<?> createARVWithHistory(@RequestBody ARVAndHistoryDTO dto) {
