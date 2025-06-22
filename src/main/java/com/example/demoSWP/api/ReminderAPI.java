@@ -8,8 +8,11 @@ import com.example.demoSWP.enums.ReminderStatus;
 import com.example.demoSWP.repository.ARVRegimenRepository;
 import com.example.demoSWP.repository.CustomerRepository;
 import com.example.demoSWP.repository.ReminderRepository;
+import com.example.demoSWP.service.EmailService;
+import com.example.demoSWP.service.ReminderMailService;
 import com.example.demoSWP.service.ReminderService;
 import com.example.demoSWP.service.AuthenticationService; // THÊM IMPORT NÀY
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus; // THÊM IMPORT NÀY (nếu chưa có)
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "api")
 @RequestMapping("/api/reminders")
 public class ReminderAPI {
 
@@ -36,6 +40,9 @@ public class ReminderAPI {
 
     @Autowired // THÊM DÒNG NÀY
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private ReminderMailService reminderMailService;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ReminderRequest dto) {
@@ -66,15 +73,15 @@ public class ReminderAPI {
         return ResponseEntity.ok(reminderService.getAllRemindersByCustomer(customerID));
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestParam ReminderStatus status) {
-        reminderService.updateStatus(id, status);
+    @PutMapping("/{reminderId}/status")
+    public ResponseEntity<Void> updateStatus(@PathVariable Long reminderId, @RequestParam ReminderStatus status) {
+        reminderService.updateStatus(reminderId, status);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}/done") // Bạn có thể giữ hoặc bỏ nếu không dùng
-    public ResponseEntity<Void> markReminderAsDone(@PathVariable Long id) {
-        reminderService.updateStatus(id, ReminderStatus.DONE);
+    @PatchMapping("/{reminderId}/done") // Bạn có thể giữ hoặc bỏ nếu không dùng
+    public ResponseEntity<Void> markReminderAsDone(@PathVariable Long reminderId) {
+        reminderService.updateStatus(reminderId, ReminderStatus.DONE);
         return ResponseEntity.ok().build();
     }
 
@@ -101,5 +108,13 @@ public class ReminderAPI {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+    //dành cho Admin để trigger chạy lại nhắc nhở nếu Cron job lỗi
+    @PostMapping("/reminders/process")
+    public ResponseEntity<?> sendDailyReminders() {
+        reminderMailService.generateAndSendReminderDaily();
+        return ResponseEntity.ok("Processed all reminders for today.");
+    }
+
     // <--- KẾT THÚC ENDPOINT CẦN THÊM --->
 }

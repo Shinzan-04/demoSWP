@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Reminder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long reminderId;
 
 
     @ManyToOne
