@@ -29,4 +29,6 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
             ReminderStatus status
     );
     boolean existsByArvRegimenAndReminderDate(ARVRegimen regimen, LocalDateTime date);
+    List<Reminder> findByArvRegimen_ArvRegimenId(Long arvRegimenId);
+
 }

@@ -1,6 +1,7 @@
 package com.example.demoSWP.service;
 
 import com.example.demoSWP.dto.AppointmentRequest;
+import com.example.demoSWP.dto.EmailDetail;
 import com.example.demoSWP.dto.RegistrationRequest;
 import com.example.demoSWP.dto.RegistrationResponse;
 import com.example.demoSWP.entity.Doctor;
@@ -35,6 +36,9 @@ public class RegistrationService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private EmailService emailService;
+
     public Registration saveRegistrationFromRequest(RegistrationRequest request) {
         Slot slot = slotRepository.findById(request.getSlotId())
                 .orElseThrow(() -> new RuntimeException("Slot không tồn tại"));
@@ -68,8 +72,15 @@ public class RegistrationService {
             registration.setDateOfBirth(request.getDateOfBirth());
             registration.setAddress(request.getAddress());
         }
+        Registration saved = registrationRepository.save(registration);
+        // 🔔 Gửi email xác nhận
+        try {
+            emailService.sendEmail(buildConfirmationEmail(saved));
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi gửi email xác nhận: " + e.getMessage());
+        }
 
-        return registrationRepository.save(registration);
+        return saved;
     }
 
 
@@ -168,5 +179,36 @@ public class RegistrationService {
         registration.setStatus(status);
         return registrationRepository.save(registration);
     }
+    private EmailDetail buildConfirmationEmail(Registration registration) {
+        EmailDetail email = new EmailDetail();
+        email.setRecevierEmailRegistration(registration.getEmail());
+        email.setSubject("Xác nhận đăng ký khám bệnh");
+        email.setHeaderNote("Bạn đã đăng ký khám thành công!");
+
+        // Nội dung chính (dùng HTML trực tiếp, không cần xuống dòng bằng \n)
+        StringBuilder content = new StringBuilder();
+        content.append("Xin chào <strong>").append(registration.getFullName()).append("</strong>,<br><br>");
+        content.append("Cảm ơn bạn đã đăng ký khám bệnh. Dưới đây là thông tin chi tiết:<br><br>");
+        content.append("🔹 <strong>Bác sĩ:</strong> ").append(registration.getDoctor().getFullName()).append("<br>");
+        content.append("🔹 <strong>Ngày khám:</strong> ").append(registration.getAppointmentDate()).append("<br>");
+        content.append("🔹 <strong>Giờ khám:</strong> ")
+                .append(registration.getSlot().getStartTime()).append(" - ").append(registration.getSlot().getEndTime()).append("<br>");
+        content.append("🔹 <strong>Địa chỉ khám:</strong> ").append(registration.getAddress()).append("<br>");
+        content.append("🔹 <strong>Triệu chứng:</strong> ").append(registration.getSymptom()).append("<br>");
+        content.append("🔹 <strong>Ghi chú:</strong> ")
+                .append(registration.getNotes() != null ? registration.getNotes() : "Không").append("<br><br>");
+        content.append("Hãy đến đúng giờ và mang theo giấy tờ tùy thân.");
+
+        email.setMessage(content.toString());
+
+        email.setSubMessage(null);
+        email.setButton(null);
+        email.setLink(null);
+        email.setFooterText("Nếu bạn cần hỗ trợ, vui lòng phản hồi email này hoặc liên hệ tổng đài.");
+        email.setTemplate("emailtemplate01");
+
+        return email;
+    }
+
 
 }

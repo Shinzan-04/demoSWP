@@ -73,6 +73,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/slots/available-dates").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/forgot-pasword").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/doctors", "/api/doctors/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/doctors/with-avatar").permitAll()
+
 
 
                                 .anyRequest().authenticated() // Tất cả các endpoint khác đều yêu cầu xác thực
