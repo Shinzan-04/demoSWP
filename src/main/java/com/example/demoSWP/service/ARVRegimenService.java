@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +29,9 @@ public class ARVRegimenService {
 
     @Autowired
     private DoctorRepository doctorRepository;
+
+    @Autowired
+    private ReminderRepository reminderRepository;
 
     @Autowired
     private MedicalHistoryRepository medicalHistoryRepository;
@@ -89,8 +95,14 @@ public class ARVRegimenService {
         regimen.setCustomer(customer);
 
         ARVRegimen saved = arvRegimenRepository.save(regimen);
+
+        // ✅ Tạo Reminder sau khi lưu ARV
+        List<Reminder> reminders = generateReminders(saved);
+        reminderRepository.saveAll(reminders);
+
         return convertToDTO(saved);
     }
+
 
     public void delete(Long id) {
         Optional<ARVRegimen> optional = arvRegimenRepository.findById(id);
@@ -109,6 +121,7 @@ public class ARVRegimenService {
         // Xóa ARV
         arvRegimenRepository.deleteById(id);
     }
+
 
     private ARVRegimenDTO convertToDTO(ARVRegimen entity) {
         ARVRegimenDTO dto = new ARVRegimenDTO();
@@ -145,6 +158,30 @@ public class ARVRegimenService {
         }
 
         return dto;
+    }
+
+    private List<Reminder> generateReminders(ARVRegimen regimen) {
+        List<Reminder> reminders = new ArrayList<>();
+        if (regimen.getCreateDate() == null || regimen.getEndDate() == null || regimen.getMedicationSchedule() == null) {
+            return reminders;
+        }
+
+        String[] times = regimen.getMedicationSchedule().split(",");
+        for (LocalDate date = regimen.getCreateDate(); !date.isAfter(regimen.getEndDate()); date = date.plusDays(1)) {
+            for (String timeStr : times) {
+                try {
+                    LocalTime time = LocalTime.parse(timeStr.trim());
+                    LocalDateTime reminderTime = LocalDateTime.of(date, time);
+                    Reminder reminder = new Reminder();
+                    reminder.setArvRegimen(regimen);
+                    reminders.add(reminder);
+                } catch (Exception e) {
+                    System.err.println("Lỗi parse time: " + timeStr);
+                }
+            }
+        }
+
+        return reminders;
     }
 
 
@@ -238,7 +275,6 @@ public class ARVRegimenService {
         if (dto.getDuration() > 0) {
             arv.setEndDate(createDate.plusMonths(dto.getDuration()));
         }
-
         ARVRegimen savedArv = arvRegimenRepository.save(arv);
 
         List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(savedArv.getArvRegimenId());

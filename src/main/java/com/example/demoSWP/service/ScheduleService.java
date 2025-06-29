@@ -59,16 +59,19 @@ public class ScheduleService {
     }
 
 
+    @Transactional
     public ScheduleDTO updateSchedule(Long id, ScheduleDTO dto) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow();
-        schedule.setTitle(dto.getTitle());
 
-        LocalDate date = dto.getDate() != null ? dto.getDate() : LocalDate.now();
-        if (date.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Ngày không được nhỏ hơn hiện tại");
+        boolean hasRegistration = schedule.getSlots().stream()
+                .anyMatch(slot -> !slot.getRegistrations().isEmpty());
+
+        if (hasRegistration) {
+            throw new IllegalStateException("Không thể cập nhật lịch vì đã có bệnh nhân đăng ký.");
         }
-        schedule.setDate(date);
 
+        schedule.setTitle(dto.getTitle());
+        schedule.setDate(dto.getDate());
         schedule.setStartTime(dto.getStartTime());
         schedule.setEndTime(dto.getEndTime());
         schedule.setRoom(dto.getRoom());
@@ -78,9 +81,23 @@ public class ScheduleService {
     }
 
 
+
+
+    @Transactional
     public void deleteSchedule(Long id) {
-        scheduleRepository.deleteById(id);
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow();
+
+        boolean hasRegistration = schedule.getSlots().stream()
+                .anyMatch(slot -> !slot.getRegistrations().isEmpty());
+
+        if (hasRegistration) {
+            throw new IllegalStateException("Không thể xóa lịch vì đã có bệnh nhân đăng ký.");
+        }
+
+        scheduleRepository.delete(schedule);
     }
+
+
 
     private ScheduleDTO toDTO(Schedule entity) {
         ScheduleDTO dto = new ScheduleDTO();
