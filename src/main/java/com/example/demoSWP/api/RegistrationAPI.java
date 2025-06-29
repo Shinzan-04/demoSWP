@@ -1,4 +1,4 @@
-// src/main/java/com/example/demoSWP/api/RegistrationAPI.java
+
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.RegistrationRequest;
@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-<<<<<<< Updated upstream
 import java.util.Optional;
-=======
->>>>>>> Stashed changes
 
 @RestController
 @RequestMapping("/api/registrations")
@@ -37,7 +34,6 @@ public class RegistrationAPI {
         RegistrationResponse response = registrationService.convertToDTO(created);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-<<<<<<< Updated upstream
     // ✅ Lấy tất cả đăng ký (dạng DTO)
     @GetMapping
     public ResponseEntity<List<RegistrationResponse>> getAllRegistrations() {
@@ -82,14 +78,6 @@ public class RegistrationAPI {
         return ResponseEntity.ok(response);
     }
 
-=======
-    @GetMapping
-    public ResponseEntity<List<Registration>> getAllRegistrations() {
-        List<Registration> registrations = registrationService.getAllRegistrations();
-        return new ResponseEntity<>(registrations, HttpStatus.OK);
-    }
->>>>>>> Stashed changes
 
     // ... other API methods if any
 }
-    

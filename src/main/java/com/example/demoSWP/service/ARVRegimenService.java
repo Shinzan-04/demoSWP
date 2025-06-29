@@ -30,6 +30,8 @@ public class ARVRegimenService {
     @Autowired
     private MedicalHistoryRepository medicalHistoryRepository;
 
+    @Autowired
+    private ReminderRepository reminderRepository;
     public List<ARVRegimenDTO> getAllRegimens() {
         return arvRegimenRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -79,6 +81,7 @@ public class ARVRegimenService {
                 customer = new Customer();
                 customer.setEmail(dto.getEmail());
                 customer.setFullName(dto.getCustomerName());
+                customer.setGender(Gender.OTHER);
                 customerRepository.save(customer);
             }
         }
@@ -93,9 +96,17 @@ public class ARVRegimenService {
         Optional<ARVRegimen> optional = arvRegimenRepository.findById(id);
         if (optional.isPresent()) {
             ARVRegimen regimen = optional.get();
-            List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(regimen.getArvRegimenId());
+
+            // Xóa tất cả Reminder liên quan đến ARV
+            List<Reminder> reminders = reminderRepository.findByArvRegimen_ArvRegimenId(id);
+            reminderRepository.deleteAll(reminders);
+
+            // Xóa các MedicalHistory liên kết với ARV
+            List<MedicalHistory> histories = medicalHistoryRepository.findByArvRegimen_ArvRegimenId(id);
             medicalHistoryRepository.deleteAll(histories);
         }
+
+        // Xóa ARV
         arvRegimenRepository.deleteById(id);
     }
 
@@ -152,6 +163,7 @@ public class ARVRegimenService {
                 customer = new Customer();
                 customer.setEmail(dto.getEmail());
                 customer.setFullName(dto.getCustomerName());
+                customer.setGender(Gender.OTHER);
                 customerRepository.save(customer);
             }
         }
@@ -207,6 +219,7 @@ public class ARVRegimenService {
                 customer = new Customer();
                 customer.setEmail(dto.getEmail());
                 customer.setFullName(dto.getCustomerName());
+                customer.setGender(Gender.OTHER);
                 customerRepository.save(customer);
             }
         }
