@@ -7,12 +7,17 @@ import com.example.demoSWP.entity.TestResult;
 import com.example.demoSWP.repository.CustomerRepository;
 import com.example.demoSWP.repository.DoctorRepository;
 import com.example.demoSWP.repository.TestResultRepository;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class TestResultService {
@@ -40,19 +45,22 @@ public class TestResultService {
                 .map(this::toDTO);
     }
 
+    @Transactional
     public TestResultDTO create(TestResultDTO dto) {
-        System.out.println("📥 DTO nhận được: " + dto);
+        Customer customer = customerRepository.findByEmail(dto.getCustomerEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với email: " + dto.getCustomerEmail()));
 
-        try {
-            TestResult entity = toEntity(dto);
-            TestResult saved = testResultRepository.save(entity);
-            System.out.println("✅ Đã lưu TestResult ID: " + saved.getTestResultId());
-            return toDTO(saved);
-        } catch (Exception ex) {
-            System.out.println("❌ Lỗi khi lưu TestResult: " + ex.getMessage());
-            ex.printStackTrace();
-            throw ex; // để hiển thị lỗi rõ nếu cần
-        }
+        Doctor doctor = getCurrentDoctor();
+
+        TestResult testResult = new TestResult();
+        testResult.setDate(dto.getDate());
+        testResult.setTypeOfTest(dto.getTypeOfTest());
+        testResult.setResultDescription(dto.getResultDescription());
+        testResult.setCustomer(customer);
+        testResult.setDoctor(doctor);
+
+        TestResult saved = testResultRepository.save(testResult);
+        return toDTO(saved);
     }
 
 
@@ -82,6 +90,7 @@ public class TestResultService {
         TestResultDTO dto = modelMapper.map(entity, TestResultDTO.class);
         dto.setCustomerId(entity.getCustomer().getCustomerID());
         dto.setDoctorId(entity.getDoctor().getDoctorId());
+        dto.setDoctorName(entity.getDoctor().getFullName()); // 👈 Thêm dòng này
         dto.setCustomerName(entity.getCustomer().getFullName());
         dto.setCustomerEmail(entity.getCustomer().getEmail());
         return dto;
@@ -101,8 +110,27 @@ public class TestResultService {
 
         return entity;
     }
-
-
+    public List<TestResultDTO> getByDoctorId(Long doctorId) {
+        return testResultRepository.findByDoctorDoctorId(doctorId)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+    // Helper: lấy bác sĩ hiện tại từ context
+    private Doctor getCurrentDoctor() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return doctorRepository.findByAccount_Email(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với email đăng nhập: " + email));
+    }
+    public List<TestResultDTO> getByCurrentCustomer() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bệnh nhân với email: " + email));
+        return testResultRepository.findByCustomerCustomerID(customer.getCustomerID())
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
 
 
 }

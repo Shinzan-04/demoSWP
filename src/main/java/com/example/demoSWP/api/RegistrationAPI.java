@@ -1,4 +1,4 @@
-// src/main/java/com/example/demoSWP/api/RegistrationAPI.java
+
 package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.RegistrationRequest;
@@ -6,6 +6,7 @@ import com.example.demoSWP.dto.RegistrationResponse;
 import com.example.demoSWP.entity.Registration;
 import com.example.demoSWP.exception.RegistrationNotFoundException;
 import com.example.demoSWP.service.RegistrationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/registrations")
+@SecurityRequirement(name = "api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class RegistrationAPI {
 
@@ -38,9 +40,12 @@ public class RegistrationAPI {
         List<RegistrationResponse> dtos = registrationService.getAllRegistrations();
         return ResponseEntity.ok(dtos);
     }
-
-
-
+    // ✅ Lấy tất cả đăng ký có status = true
+    @GetMapping("/active")
+    public ResponseEntity<List<RegistrationResponse>> getAllRegistrationsWithStatus() {
+        List<RegistrationResponse> dtos = registrationService.getAllRegistrationsWithStatus();
+        return ResponseEntity.ok(dtos);
+    }
 
     // ✅ Lấy một đăng ký theo ID
     @GetMapping("/{id}")
@@ -49,6 +54,7 @@ public class RegistrationAPI {
                 .map(reg -> ResponseEntity.ok(registrationService.convertToDTO(reg)))
                 .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
     }
+
     // ✅ Xoá đăng ký
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRegistration(@PathVariable Long id) {
@@ -61,7 +67,17 @@ public class RegistrationAPI {
         RegistrationResponse response = registrationService.convertToDTO(reg);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+    // ✅ Chỉnh status
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<RegistrationResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestParam boolean status) {
+        Registration updated = registrationService.updateStatus(id, status);
+        RegistrationResponse response = registrationService.convertToDTO(updated);
+        return ResponseEntity.ok(response);
+    }
+
 
     // ... other API methods if any
 }
-    

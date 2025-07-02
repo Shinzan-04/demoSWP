@@ -1,32 +1,31 @@
 package com.example.demoSWP.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import java.util.Date;
 
-import java.time.LocalDate;
-
-@Getter
-@Setter
-public class ARVRegimenDTO {
+@Data
+public class ARVAndHistoryDTO {
+    // ID của ARV Regimen (dùng cho update)
     private Long arvRegimenId;
+
+    // ARV Regimen
     private Long doctorId;
-    private String doctorName;
     private Long customerId;
     private String customerName;
-    private LocalDate createDate;
+    private String email;
     private String regimenName;
     private String regimenCode;
+    private Date createDate;
+    private Date endDate;
     private String description;
-    private int duration;
-    private LocalDate endDate;
     private String medicationSchedule;
-    private String email;
-    // Medical History (để export Excel đầy đủ)
+    private int duration;
+
+    // Medical History
     private String diseaseName;
     private String diagnosis;
     private String prescription;
     private String reason;
     private String treatment;
     private String notes;
-
 }

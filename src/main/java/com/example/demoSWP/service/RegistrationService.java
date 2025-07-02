@@ -58,6 +58,7 @@ public class RegistrationService {
         registration.setSymptom(request.getSymptom());
         registration.setVisitType(request.getVisitType());
         registration.setGender(request.getGender());
+        registration.setStatus(true);
 
         // ✅ Nếu là REGISTRATION thì yêu cầu thông tin thêm
         if (request.getVisitType() == VisitType.REGISTRATION) {
@@ -75,10 +76,19 @@ public class RegistrationService {
 
 
     public List<RegistrationResponse> getAllRegistrations() {
-        return registrationRepository.findAll().stream()
+        List<Registration> registrations = registrationRepository.findAll();
+        return registrations.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<RegistrationResponse> getAllRegistrationsWithStatus() {
+        return registrationRepository.findByStatusTrue().stream()
                 .map(this::convertToDTO)
                 .toList();
     }
+
+
 
     private RegistrationRequest mapToDTO(Registration registration) {
         RegistrationRequest dto = modelMapper.map(registration, RegistrationRequest.class);
@@ -124,6 +134,7 @@ public class RegistrationService {
     }
     public RegistrationResponse convertToDTO(Registration reg) {
         RegistrationResponse dto = new RegistrationResponse();
+        dto.setRegistrationId(reg.getRegistrationID());
         dto.setFullName(reg.getFullName());
         dto.setEmail(reg.getEmail());
         dto.setPhone(reg.getPhone());
@@ -134,6 +145,9 @@ public class RegistrationService {
         dto.setAddress(reg.getAddress());
         dto.setNotes(reg.getNotes());
         dto.setGender(reg.getGender().name());
+        dto.setVisitType(reg.getVisitType());
+        dto.setStatus(reg.isStatus());
+        dto.setDoctorId(reg.getDoctor().getDoctorId());
 
         if (reg.getDoctor() != null) {
             dto.setDoctorName(reg.getDoctor().getFullName());
@@ -146,6 +160,13 @@ public class RegistrationService {
         }
 
         return dto;
+    }
+
+    public Registration updateStatus(Long id, boolean status) {
+        Registration registration = registrationRepository.findById(id)
+                .orElseThrow(() -> new RegistrationNotFoundException("Không tìm thấy đăng ký với ID: " + id));
+        registration.setStatus(status);
+        return registrationRepository.save(registration);
     }
 
 }

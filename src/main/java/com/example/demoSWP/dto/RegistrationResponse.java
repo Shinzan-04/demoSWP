@@ -1,5 +1,6 @@
 package com.example.demoSWP.dto;
 
+import com.example.demoSWP.enums.VisitType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +24,11 @@ public class RegistrationResponse {
     private String notes;
     private String gender;
     private String doctorName;
+    private Long doctorId;
     private Long slotId;
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDate appointmentDate;
+    private VisitType visitType;
+    private boolean status;
 }

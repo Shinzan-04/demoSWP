@@ -146,7 +146,8 @@ public class AuthenticationService implements UserDetailsService {
         } else {
             EmailDetail emailDetail = new EmailDetail();
             emailDetail.setReceiver(account);
-            emailDetail.setLink("http://localhost:8080/login/?token=" + tokenService.generateToken(account));
+            emailDetail.setLink("http://localhost:3000/reset-password?token=" + tokenService.generateToken(account));
+
             emailDetail.setSubject("Đặt lại mật khẩu");
             emailDetail.setMessage("Bạn đã yêu cầu đặt lại mật khẩu.");
             emailDetail.setSubMessage("Nhấn vào nút bên dưới để tiến hành.");
@@ -162,9 +163,19 @@ public class AuthenticationService implements UserDetailsService {
         return authenticationRepository.findAccountByEmail(account.getEmail());
     }
 
-    public void resetPassword (ResetPasswordRequest resetPasswordRequest){
-        Account account = getCurrentAccount();
-        account.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        String token = resetPasswordRequest.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new RuntimeException("Token không hợp lệ");
+        }
+
+        Account account = tokenService.extractAccount(token); // ✅ dùng token lấy account
+        if (account == null) {
+            throw new RuntimeException("Không tìm thấy tài khoản");
+        }
+
+        account.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
         authenticationRepository.save(account);
     }
+
 }

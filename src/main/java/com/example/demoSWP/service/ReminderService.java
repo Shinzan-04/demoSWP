@@ -1,11 +1,15 @@
 package com.example.demoSWP.service;
 
+import com.example.demoSWP.dto.EmailDetail;
+import com.example.demoSWP.entity.ARVRegimen;
 import com.example.demoSWP.entity.Reminder;
 import com.example.demoSWP.enums.ReminderStatus;
 import com.example.demoSWP.repository.ReminderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,9 +20,11 @@ import static com.example.demoSWP.enums.ReminderStatus.PENDING;
 public class ReminderService {
 
     private final ReminderRepository reminderRepository;
+    private EmailService emailService;
 
     // Tạo nhắc nhở
     public Reminder createReminder(Reminder reminder) {
+
         return reminderRepository.save(reminder);
     }
 
@@ -58,4 +64,23 @@ public class ReminderService {
         reminder.setStatus(status);
         reminderRepository.save(reminder);
     }
+
+    // tự động tạo nhắc dựa trên arv (chưa dùng)
+    @Transactional
+    public void generateRemindersForARV(ARVRegimen regimen) {
+        LocalDate start = regimen.getCreateDate();
+        LocalDate end = regimen.getEndDate();
+
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            Reminder reminder = new Reminder();
+            reminder.setArvRegimen(regimen);
+            reminder.setReminderDate(date.atTime(8, 0)); // 8h sáng mỗi ngày
+            reminder.setReminderContent("💊 Nhắc nhở uống thuốc ARV ngày " + date);
+            reminder.setStatus(ReminderStatus.PENDING);
+
+            reminderRepository.save(reminder);
+        }
+    }
+
+
 }

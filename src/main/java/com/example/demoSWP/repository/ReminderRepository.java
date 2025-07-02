@@ -1,5 +1,6 @@
 package com.example.demoSWP.repository;
 
+import com.example.demoSWP.entity.ARVRegimen;
 import com.example.demoSWP.entity.Reminder;
 import com.example.demoSWP.enums.ReminderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,6 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
             LocalDateTime endOfDay,
             ReminderStatus status
     );
+    List<Reminder> findByArvRegimen_ArvRegimenId(Long arvRegimenId);
+    boolean existsByArvRegimenAndReminderDate(ARVRegimen regimen, LocalDateTime date);
 }
