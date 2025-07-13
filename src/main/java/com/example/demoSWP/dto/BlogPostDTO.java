@@ -1,19 +1,19 @@
 package com.example.demoSWP.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
-@NoArgsConstructor
-@Getter
-@Setter
+
+@Data
 public class BlogPostDTO {
     private Long id;
     private String title;
     private String content;
-    private LocalDateTime createdAt;
     private String tag;
+    private LocalDateTime createdAt;
     private Long doctorId;
     private String doctorName;
+    private String imageUrl;
+    private LocalDateTime updatedAt;
+
 }

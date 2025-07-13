@@ -41,7 +41,7 @@ public class AuthenticationAPI {
         return ResponseEntity.ok(account); // Returns a 200 OK response with the AccountResponse (likely containing a token)
     }
 
-    @PostMapping("/forgot-pasword")
+    @PostMapping("/forgot-password")
     public ResponseEntity fogotPassword(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest){
         authenticationService.forgotPassword(forgotPasswordRequest);
         return ResponseEntity.ok("successfully forgotPassword");

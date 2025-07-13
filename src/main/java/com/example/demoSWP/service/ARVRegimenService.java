@@ -36,8 +36,6 @@ public class ARVRegimenService {
     @Autowired
     private MedicalHistoryRepository medicalHistoryRepository;
 
-    @Autowired
-    private ReminderRepository reminderRepository;
     public List<ARVRegimenDTO> getAllRegimens() {
         return arvRegimenRepository.findAll().stream()
                 .map(this::convertToDTO)
