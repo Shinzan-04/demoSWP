@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class RatingService {
@@ -23,6 +24,19 @@ public class RatingService {
 
     @Autowired
     DoctorRepository doctorRepository;
+
+
+    public List<Rating> getAllRatings() {
+        return ratingRepository.findAll();
+    }
+
+    public List<Rating> getRatingsByDoctorId(Long doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new BadRequestException("Doctor not found"));
+
+        return ratingRepository.findAllByDoctor(doctor);
+    }
+
 
     public Rating create(RatingRequest ratingRequest) {
         if (ratingRequest.getStar() < 1 || ratingRequest.getStar() > 5) {
