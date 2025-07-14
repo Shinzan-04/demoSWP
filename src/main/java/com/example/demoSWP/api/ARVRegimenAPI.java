@@ -56,6 +56,16 @@ public class ARVRegimenAPI {
         return ResponseEntity.ok("Cập nhật thành công");
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<ARVRegimenDTO>> getByCustomerId(@PathVariable Long customerId) {
+        List<ARVRegimenDTO> list = arvRegimenService.getByCustomerId(customerId);
+        if (list == null || list.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(list);
+    }
+
+
     @PostMapping
     public ResponseEntity<ARVRegimenDTO> create(@RequestBody ARVRegimenDTO dto) {
         return ResponseEntity.ok(arvRegimenService.createOrUpdate(dto));
