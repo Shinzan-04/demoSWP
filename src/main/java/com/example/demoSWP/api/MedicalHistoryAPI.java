@@ -36,7 +36,6 @@ public class MedicalHistoryAPI {
         }
     }
 
-
     @GetMapping("/{id}")
     public MedicalHistoryDTO getById(@PathVariable Long id) {
         return medicalHistoryService.getById(id)
