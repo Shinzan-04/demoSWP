@@ -1,6 +1,7 @@
 package com.example.demoSWP.service;
 
 import com.example.demoSWP.dto.MedicalHistoryDTO;
+import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.entity.Customer;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.entity.MedicalHistory;
@@ -9,6 +10,7 @@ import com.example.demoSWP.repository.DoctorRepository;
 import com.example.demoSWP.repository.MedicalHistoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,6 @@ public class MedicalHistoryService {
     @Autowired
     private ModelMapper modelMapper;
 
-    // Lấy toàn bộ lịch sử
     public List<MedicalHistoryDTO> getAll() {
         return historyRepository.findAll()
                 .stream()
@@ -37,13 +38,11 @@ public class MedicalHistoryService {
                 .toList();
     }
 
-    // Lấy theo ID
     public Optional<MedicalHistoryDTO> getById(Long id) {
         return historyRepository.findById(id)
                 .map(this::toDTO);
     }
 
-    // Lấy theo bệnh nhân
     public List<MedicalHistoryDTO> getByCustomerId(Long customerId) {
         return historyRepository.findByCustomerCustomerID(customerId)
                 .stream()
@@ -51,7 +50,21 @@ public class MedicalHistoryService {
                 .toList();
     }
 
-    // Tạo mới lịch sử khám
+    // ✅ Lấy lịch sử của bệnh nhân đang đăng nhập
+    public List<MedicalHistoryDTO> getMyMedicalHistories() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof Account account && account.getCustomer() != null) {
+            Long customerId = account.getCustomer().getCustomerID();
+            return historyRepository.findByCustomerCustomerID(customerId)
+                    .stream()
+                    .map(this::toDTO)
+                    .toList();
+        }
+
+        throw new RuntimeException("Người dùng không hợp lệ hoặc không phải bệnh nhân.");
+    }
+
     public MedicalHistoryDTO create(MedicalHistoryDTO dto) {
         MedicalHistory entity = new MedicalHistory();
 
@@ -63,12 +76,10 @@ public class MedicalHistoryService {
         entity.setPrescription(dto.getPrescription());
         entity.setNotes(dto.getNotes());
 
-        // Set bác sĩ
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
         entity.setDoctor(doctor);
 
-        // Set bệnh nhân (cho phép null nếu không tồn tại)
         if (dto.getCustomerID() != null) {
             customerRepository.findById(dto.getCustomerID()).ifPresent(entity::setCustomer);
         }
@@ -77,7 +88,6 @@ public class MedicalHistoryService {
         return toDTO(saved);
     }
 
-    // Cập nhật
     public MedicalHistoryDTO update(Long id, MedicalHistoryDTO dto) {
         return historyRepository.findById(id).map(existing -> {
             existing.setVisitDate(dto.getVisitDate());
@@ -88,12 +98,10 @@ public class MedicalHistoryService {
             existing.setPrescription(dto.getPrescription());
             existing.setNotes(dto.getNotes());
 
-            // Bác sĩ
             Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
             existing.setDoctor(doctor);
 
-            // Bệnh nhân
             if (dto.getCustomerID() != null) {
                 customerRepository.findById(dto.getCustomerID()).ifPresent(existing::setCustomer);
             } else {
@@ -104,18 +112,16 @@ public class MedicalHistoryService {
         }).orElseThrow(() -> new RuntimeException("Không tìm thấy lịch sử với id: " + id));
     }
 
-    // Xoá
     public void delete(Long id) {
         historyRepository.deleteById(id);
     }
 
-    // Mapping entity -> DTO
     private MedicalHistoryDTO toDTO(MedicalHistory entity) {
         MedicalHistoryDTO dto = modelMapper.map(entity, MedicalHistoryDTO.class);
 
         if (entity.getCustomer() != null) {
             dto.setCustomerID(entity.getCustomer().getCustomerID());
-            dto.setCustomerName(entity.getCustomer().getFullName()); // <-- Thêm dòng này
+            dto.setCustomerName(entity.getCustomer().getFullName());
         }
 
         if (entity.getDoctor() != null) {

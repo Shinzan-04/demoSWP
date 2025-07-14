@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class EmailDetail {
     Account receiver;
+    String recevierEmailRegistration;
+    String name;
     String subject;
     String link;
     private String buttonText;  // Text trên nút

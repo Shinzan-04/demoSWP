@@ -1,15 +1,12 @@
-
 package com.example.demoSWP.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class BlogPost {
 
     @Id
@@ -18,15 +15,18 @@ public class BlogPost {
 
     private String title;
 
-    // ✅ Cho phép nội dung dài với MEDIUMTEXT
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
-
-    private LocalDateTime createdAt;
 
     private String tag;
 
-    @ManyToOne
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
+    @Column(length = 1000)
+    private String imageUrl;
+
 }

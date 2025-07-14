@@ -6,6 +6,7 @@ import com.example.demoSWP.service.ScheduleService;
 import com.example.demoSWP.service.SlotService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,9 @@ public class ScheduleAPI {
         return scheduleService.getAllSchedules();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ScheduleDTO> getById(@PathVariable Long id) {
-        Optional<ScheduleDTO> dto = scheduleService.getScheduleById(id);
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleDTO> getById(@PathVariable Long scheduleId) {
+        Optional<ScheduleDTO> dto = scheduleService.getScheduleById(scheduleId);
         return dto.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -47,16 +48,21 @@ public class ScheduleAPI {
         return ResponseEntity.ok(scheduleService.createSchedule(dto));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ScheduleDTO> update(@PathVariable Long id, @RequestBody ScheduleDTO dto) {
-        return ResponseEntity.ok(scheduleService.updateSchedule(id, dto));
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleDTO> update(@PathVariable Long scheduleId, @RequestBody ScheduleDTO dto) {
+        return ResponseEntity.ok(scheduleService.updateSchedule(scheduleId, dto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        scheduleService.deleteSchedule(id);
-        return ResponseEntity.ok().build();
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<?> delete(@PathVariable Long scheduleId) {
+        try {
+            scheduleService.deleteSchedule(scheduleId);
+            return ResponseEntity.ok().build();
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
+
 
     @GetMapping("/api/schedules/clone-last-week")
     public ResponseEntity<?> manualClone() {

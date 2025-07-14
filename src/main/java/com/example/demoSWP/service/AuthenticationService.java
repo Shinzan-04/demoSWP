@@ -74,10 +74,8 @@ public class AuthenticationService implements UserDetailsService {
                 customerRepository.save(customer);
             }
         }
-        EmailDetail emailDetail = new EmailDetail();
-        emailDetail.setReceiver(newAccount);
-        emailDetail.setSubject("Welcome to my system");
-        emailService.sendEmail(emailDetail);
+
+        emailService.sendRegisterEmail(newAccount);
         return newAccount;
     }
 

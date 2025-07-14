@@ -5,14 +5,14 @@ import com.example.demoSWP.entity.Account;
 import com.example.demoSWP.entity.Customer;
 import com.example.demoSWP.entity.Doctor;
 import com.example.demoSWP.entity.Rating;
-import com.example.demoSWP.exception.BadRequestException;
+import com.example.demoSWP.exception.exceptions.BadRequestException;
 import com.example.demoSWP.repository.DoctorRepository;
 import com.example.demoSWP.repository.RatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class RatingService {
@@ -24,6 +24,19 @@ public class RatingService {
 
     @Autowired
     DoctorRepository doctorRepository;
+
+
+    public List<Rating> getAllRatings() {
+        return ratingRepository.findAll();
+    }
+
+    public List<Rating> getRatingsByDoctorId(Long doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new BadRequestException("Doctor not found"));
+
+        return ratingRepository.findAllByDoctor(doctor);
+    }
+
 
     public Rating create(RatingRequest ratingRequest) {
         if (ratingRequest.getStar() < 1 || ratingRequest.getStar() > 5) {

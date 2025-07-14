@@ -2,51 +2,58 @@ package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.BlogPostDTO;
 import com.example.demoSWP.service.BlogService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
-
+@Validated
 @RestController
 @RequestMapping("/api/blogposts")
-@CrossOrigin(origins = "*")
 public class BlogAPI {
 
     @Autowired
-    private BlogService blogPostService;
+    private BlogService blogService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody BlogPostDTO dto) {
-        try {
-            return ResponseEntity.ok(blogPostService.createBlogPost(dto));
-        } catch (Exception e) {
-            e.printStackTrace(); // log ra terminal
-            return ResponseEntity.badRequest().body("Lỗi khi tạo blog: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<BlogPostDTO> getById(@PathVariable Long id) {
-        BlogPostDTO result = blogPostService.getBlogPostById(id);
-        return result != null ? ResponseEntity.ok(result) : ResponseEntity.notFound().build();
+    public BlogPostDTO createBlogPost(@RequestBody BlogPostDTO blogPostDTO) {
+        return blogService.createBlogPost(blogPostDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<BlogPostDTO>> getAll() {
-        return ResponseEntity.ok(blogPostService.getAllBlogPosts());
+    public List<BlogPostDTO> getAllBlogPosts() {
+        return blogService.getAllBlogPosts();
+    }
+
+    @GetMapping("/{id}")
+    public BlogPostDTO getBlogPostById(@PathVariable Long id) {
+        return blogService.getBlogPostById(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BlogPostDTO> update(@PathVariable Long id, @RequestBody BlogPostDTO dto) {
-        BlogPostDTO result = blogPostService.updateBlogPost(id, dto);
-        return result != null ? ResponseEntity.ok(result) : ResponseEntity.notFound().build();
+    public BlogPostDTO updateBlogPost(@PathVariable Long id, @RequestBody BlogPostDTO blogPostDTO) {
+        return blogService.updateBlogPost(id, blogPostDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        blogPostService.deleteBlogPost(id);
-        return ResponseEntity.ok().build();
+    public void deleteBlogPost(@PathVariable Long id) {
+        blogService.deleteBlogPost(id);
     }
+    @PostMapping(value = "/create-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BlogPostDTO createWithImage(
+            @RequestPart("blog") BlogPostDTO dto,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile
+    ) {
+        return blogService.createBlogPostWithImage(dto, imageFile);
+    }
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BlogPostDTO updateWithImage(
+            @PathVariable Long id,
+            @RequestPart("blog") BlogPostDTO blogDto,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile
+    ) {
+        return blogService.updateWithImage(id, blogDto, imageFile);
+    }
+
 }

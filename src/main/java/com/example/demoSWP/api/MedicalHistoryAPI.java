@@ -3,6 +3,7 @@ package com.example.demoSWP.api;
 import com.example.demoSWP.dto.MedicalHistoryDTO;
 import com.example.demoSWP.service.MedicalHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public class MedicalHistoryAPI {
         return medicalHistoryService.getByCustomerId(customerId);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<MedicalHistoryDTO>> getMyMedicalHistories() {
+        try {
+            List<MedicalHistoryDTO> histories = medicalHistoryService.getMyMedicalHistories();
+            return ResponseEntity.ok(histories);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build(); // UNAUTHORIZED
+        }
+    }
 
 
     @GetMapping("/{id}")

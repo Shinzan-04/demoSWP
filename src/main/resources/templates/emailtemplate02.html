@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Chào mừng bạn đến với hệ thống</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f2f4f6; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color:#000000;">
+<table width="100%" bgcolor="#f2f4f6" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="margin:40px auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" role="presentation">
+
+                <!-- Header -->
+                <tr>
+                    <td align="center" bgcolor="#2c3e50" style="padding:24px 0; color:#ffffff;">
+                        <h1 style="margin:0; font-size:24px;">HIV Treatment and Medical</h1>
+                        <p style="margin:4px 0 0; font-size:14px;">[[${headerNote}]]</p>
+                    </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                    <td style="padding:32px; font-size:15px; color:#000000;">
+                        <p style="margin:0 0 16px;">Xin chào <strong style="color:#000000;">[[${name}]]</strong>,</p>
+
+                        <div th:utext="${message}" style="color:#000000;"></div>
+
+                        <p style="margin-top:16px; color:#000000;">[[${subMessage}]]</p>
+
+                        <!-- Thông tin tài khoản (ví dụ) -->
+                        <table cellpadding="0" cellspacing="0" width="100%" style="margin-top:24px; border-collapse:collapse;">
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold; width:150px;">Email đăng ký</td>
+                                <td style="padding:8px; border:1px solid #ddd;">[[${email}]]</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Họ và tên</td>
+                                <td style="padding:8px; border:1px solid #ddd;">[[${name}]]</td>
+                            </tr>
+                        </table>
+
+                        <!-- Optional Button (nếu có) -->
+                        <div th:if="${button}" style="text-align:center; margin:30px 0;">
+                            <a th:href="${Link}" target="_blank"
+                               style="padding:12px 24px; background-color:#f1556c; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold;">
+                                [[${button}]]
+                            </a>
+                        </div>
+
+                        <p style="margin-top:32px; font-size:14px; color:#555555;">
+                            [[${footerText}]]
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td align="center" style="background:#fafafa; padding:16px; font-size:12px; color:#999;">
+                        <a href="#" style="color:#999; text-decoration:underline;">Hủy nhận thông báo</a>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.example.demoSWP.api;
 
 import com.example.demoSWP.dto.DoctorDTO;
 import com.example.demoSWP.entity.Account;
+import com.example.demoSWP.exception.ResourceNotFoundException;
 import com.example.demoSWP.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,14 +28,13 @@ public class DoctorAPI {
     @GetMapping("/{id}")
     public DoctorDTO getById(@PathVariable Long id) {
         return doctorService.getById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bác sĩ với ID: " + id));
     }
 
     @PostMapping
     public DoctorDTO create(@RequestBody DoctorDTO dto) {
         return doctorService.create(dto);
     }
-
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public DoctorDTO updateDoctorProfile(
@@ -50,16 +50,15 @@ public class DoctorAPI {
         doctorService.delete(id);
     }
 
-
     @GetMapping("/me")
     public DoctorDTO getMyProfile() {
         Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (account == null || account.getDoctor() == null) {
-            throw new RuntimeException("Không tìm thấy thông tin bác sĩ.");
+            throw new ResourceNotFoundException("Không tìm thấy thông tin bác sĩ.");
         }
 
-        return DoctorDTO.fromEntity(account.getDoctor()); // Chuyển đổi sang DTO nếu cần
+        return DoctorDTO.fromEntity(account.getDoctor());
     }
 
     @PutMapping(value = "/update-no-avatar/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)

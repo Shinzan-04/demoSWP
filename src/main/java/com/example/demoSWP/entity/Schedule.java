@@ -39,8 +39,8 @@ public class Schedule {
     @JsonBackReference
     private Doctor doctor;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Slot> slots;
+
 
 }
