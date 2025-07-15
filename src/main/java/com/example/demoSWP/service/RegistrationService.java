@@ -61,7 +61,13 @@ public class RegistrationService {
         registration.setNotes(request.getNotes());
         registration.setSymptom(request.getSymptom());
         registration.setVisitType(request.getVisitType());
-        registration.setGender(request.getGender());
+        // 📌 Nếu là APPOINTMENT thì gán gender = OTHER
+        if (request.getVisitType() == VisitType.APPOINTMENT) {
+            registration.setGender(Gender.OTHER);
+        } else {
+            // Ngược lại (REGISTRATION) thì dùng giá trị từ request
+            registration.setGender(request.getGender());
+        }
         registration.setStatus(true);
 
         // ✅ Nếu là REGISTRATION thì yêu cầu thông tin thêm
@@ -185,30 +191,47 @@ public class RegistrationService {
         email.setSubject("Xác nhận đăng ký khám bệnh");
         email.setHeaderNote("Bạn đã đăng ký khám thành công!");
 
-        // Nội dung chính (dùng HTML trực tiếp, không cần xuống dòng bằng \n)
+        // Xác định địa chỉ hiển thị
+        String displayAddress;
+        if (registration.getVisitType() == VisitType.REGISTRATION) {
+            displayAddress = "123 Đường Y tế, Quận 1, TP.HCM";
+
+        } else {
+            displayAddress = "Bác sĩ sẽ liên hệ với bạn";
+        }
+
+        // Nội dung chính (HTML)
         StringBuilder content = new StringBuilder();
-        content.append("Xin chào <strong>").append(registration.getFullName()).append("</strong>,<br><br>");
+        content.append("Xin chào <strong>")
+                .append(registration.getFullName() != null ? registration.getFullName() : "Quý khách")
+                .append("</strong>,<br><br>");
         content.append("Cảm ơn bạn đã đăng ký khám bệnh. Dưới đây là thông tin chi tiết:<br><br>");
-        content.append("🔹 <strong>Bác sĩ:</strong> ").append(registration.getDoctor().getFullName()).append("<br>");
-        content.append("🔹 <strong>Ngày khám:</strong> ").append(registration.getAppointmentDate()).append("<br>");
+        content.append("🔹 <strong>Bác sĩ:</strong> ")
+                .append(registration.getDoctor().getFullName()).append("<br>");
+        content.append("🔹 <strong>Ngày khám:</strong> ")
+                .append(registration.getAppointmentDate()).append("<br>");
         content.append("🔹 <strong>Giờ khám:</strong> ")
-                .append(registration.getSlot().getStartTime()).append(" - ").append(registration.getSlot().getEndTime()).append("<br>");
-        content.append("🔹 <strong>Địa chỉ khám:</strong> ").append(registration.getAddress()).append("<br>");
-        content.append("🔹 <strong>Triệu chứng:</strong> ").append(registration.getSymptom()).append("<br>");
+                .append(registration.getSlot().getStartTime())
+                .append(" - ")
+                .append(registration.getSlot().getEndTime()).append("<br>");
+        content.append("🔹 <strong>Địa chỉ khám:</strong> ")
+                .append(displayAddress).append("<br>");
+        content.append("🔹 <strong>Triệu chứng:</strong> ")
+                .append(registration.getSymptom() != null ? registration.getSymptom() : "Không")
+                .append("<br>");
         content.append("🔹 <strong>Ghi chú:</strong> ")
-                .append(registration.getNotes() != null ? registration.getNotes() : "Không").append("<br><br>");
+                .append(registration.getNotes() != null ? registration.getNotes() : "Không")
+                .append("<br><br>");
         content.append("Hãy đến đúng giờ và mang theo giấy tờ tùy thân.");
 
         email.setMessage(content.toString());
-
         email.setSubMessage(null);
         email.setButton(null);
         email.setLink(null);
         email.setFooterText("Nếu bạn cần hỗ trợ, vui lòng phản hồi email này hoặc liên hệ tổng đài.");
-        email.setTemplate("emailtemplate01");
+        email.setTemplate("emailtemplate02");
 
         return email;
     }
-
 
 }
